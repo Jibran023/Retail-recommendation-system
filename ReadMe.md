@@ -1,0 +1,1 @@
+This is a retail recommendation system built using MERN stack.
