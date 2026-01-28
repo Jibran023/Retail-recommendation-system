@@ -30,4 +30,6 @@
   see if its available or what the prices are and then probably decide on commuting to that market or not if they decide against buying online.   '
   The next response i gave
 
-  
+  The agent didn't make the workflow file after the analysis phase. I asked the agent to make the workflow file after the analysis phase upon which it created the workflow file. It also denied of any such file to be made and reinforced that the product brief is the workflow file and a sprint yml file is created after phase 4.
+
+  The agent got a bit slow as the chat has gotten long. It did advise to make new chats for each phase and to not mix up the phases though.
