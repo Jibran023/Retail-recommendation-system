@@ -1,7 +1,8 @@
-import { createContext, useContext, useReducer } from 'react';
+import { createContext, useReducer } from 'react';
 import type { ReactNode } from 'react';
 import type { SearchState, SearchAction } from '../types/Search.types';
 import type { AppError } from '../types/Error.types';
+import type { ApiErrorResponse } from '../services/apiClient';
 
 /**
  * Initial search state
@@ -58,7 +59,7 @@ function searchReducer(state: SearchState, action: SearchAction): SearchState {
 /**
  * Search context type
  */
-interface SearchContextType {
+export interface SearchContextType {
   state: SearchState;
   search: (query: string) => Promise<void>;
   clearSearch: () => void;
@@ -67,7 +68,7 @@ interface SearchContextType {
 /**
  * Create Search context
  */
-const SearchContext = createContext<SearchContextType | undefined>(undefined);
+export const SearchContext = createContext<SearchContextType | undefined>(undefined);
 
 /**
  * Search context provider component
@@ -81,17 +82,23 @@ export function SearchProvider({ children }: { children: ReactNode }) {
 
     try {
       // TODO: Replace with actual API call in Story 1.6
-      // For now, use mock service
-      const { searchProductsMock } = await import('../services/mockProducts');
-      const results = await searchProductsMock(query);
+      // For now, use API client with mock data
+      const { searchProducts } = await import('../services/apiClient');
+      const response = await searchProducts(query);
 
-      dispatch({
-        type: 'SEARCH_SUCCESS',
-        payload: {
-          results,
-          count: results.length,
-        },
-      });
+      if (response.success) {
+        dispatch({
+          type: 'SEARCH_SUCCESS',
+          payload: {
+            results: response.data,
+            count: response.data.length,
+          },
+        });
+      } else {
+        // Type narrowing for error response
+        const errorResponse = response as ApiErrorResponse;
+        dispatch({ type: 'SEARCH_ERROR', payload: errorResponse.error });
+      }
     } catch (error) {
       const appError: AppError = {
         code: 'SEARCH_FAILED',
@@ -113,17 +120,4 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   };
 
   return <SearchContext.Provider value={value}>{children}</SearchContext.Provider>;
-}
-
-/**
- * Hook to use search context
- */
-export function useSearch(): SearchContextType {
-  const context = useContext(SearchContext);
-
-  if (context === undefined) {
-    throw new Error('useSearch must be used within a SearchProvider');
-  }
-
-  return context;
 }

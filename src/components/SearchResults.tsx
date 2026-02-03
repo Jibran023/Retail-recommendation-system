@@ -1,5 +1,5 @@
-import { Box, Typography, List, ListItem, ListItemText, Divider, Chip, Alert, AlertTitle } from '@mui/material';
-import { useSearch } from '../context/SearchContext';
+import { Box, Typography, List, ListItem, ListItemText, Divider, Chip, Alert, AlertTitle, Skeleton } from '@mui/material';
+import { useSearch } from '../hooks/useSearch';
 
 /**
  * Formats price from cents to currency display
@@ -29,13 +29,29 @@ export function SearchResults() {
   const { state } = useSearch();
   const { results, loading, error, resultsCount, query } = state;
 
-  // Loading state
+  // Loading state with skeleton UI
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-        <Typography variant="body1" color="text.secondary">
+      <Box sx={{ maxWidth: 800, mx: 'auto', my: 2 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           Searching products...
         </Typography>
+        {/* Show 5 skeleton rows to simulate loading results */}
+        {[1, 2, 3, 4, 5].map((item) => (
+          <Box
+            key={item}
+            sx={{
+              bgcolor: 'background.paper',
+              mb: 1,
+              borderRadius: 1,
+              p: 2,
+            }}
+          >
+            <Skeleton variant="text" width="60%" height={32} sx={{ mb: 1 }} />
+            <Skeleton variant="text" width="30%" height={24} sx={{ mb: 2 }} />
+            <Skeleton variant="rectangular" width="100%" height={60} />
+          </Box>
+        ))}
       </Box>
     );
   }

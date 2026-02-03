@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { TextField, InputAdornment, CircularProgress, Box } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { useSearch } from '../context/SearchContext';
+import { useSearch } from '../hooks/useSearch';
 import useDebounce from '../hooks/useDebounce';
 
 /**
