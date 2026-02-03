@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { TextField, InputAdornment, CircularProgress, Box } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { useSearch } from '../hooks/useSearch';
@@ -25,20 +25,18 @@ export function SearchBar() {
   // Debounce the input value to reduce API calls
   const debouncedQuery = useDebounce(inputValue, 300);
 
-  // Perform search when debounced value changes
-  const handleSearch = useCallback(async () => {
-    if (debouncedQuery.trim() === '') {
-      clearSearch();
-      return;
-    }
-
-    await search(debouncedQuery);
-  }, [debouncedQuery, search, clearSearch]);
-
   // Trigger search when debounced value changes
   useEffect(() => {
-    handleSearch();
-  }, [handleSearch, debouncedQuery]);
+    const performSearch = async () => {
+      if (debouncedQuery.trim() === '') {
+        clearSearch();
+        return;
+      }
+      await search(debouncedQuery);
+    };
+
+    performSearch();
+  }, [debouncedQuery, search, clearSearch]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
@@ -47,7 +45,12 @@ export function SearchBar() {
   const handleKeyDown = (event: React.KeyboardEvent) => {
     // Keyboard navigation: Allow Enter key to trigger immediate search
     if (event.key === 'Enter') {
-      handleSearch();
+      const query = inputValue.trim();
+      if (query === '') {
+        clearSearch();
+      } else {
+        search(query);
+      }
     }
   };
 
