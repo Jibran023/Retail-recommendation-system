@@ -1,5 +1,7 @@
-import { Box, Typography, List, ListItem, ListItemText, Divider, Chip, Alert, AlertTitle, Skeleton } from '@mui/material';
+import { Box, Typography, List, ListItem, ListItemText, Divider, Chip, Alert, AlertTitle, Skeleton, Button } from '@mui/material';
 import { useSearch } from '../hooks/useSearch';
+import { useCategoryFilter } from '../hooks/useCategoryFilter';
+import { getCategoryName } from '../services/mockCategories';
 
 /**
  * Formats price from cents to currency display
@@ -27,7 +29,8 @@ function formatPrice(priceInCents: number): string {
  */
 export function SearchResults() {
   const { state } = useSearch();
-  const { results, loading, error, resultsCount, query } = state;
+  const { clearCategory } = useCategoryFilter();
+  const { results, loading, error, resultsCount, query, selectedCategory } = state;
 
   // Loading state with skeleton UI
   if (loading) {
@@ -97,9 +100,30 @@ export function SearchResults() {
   // Results display
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto', my: 2 }}>
+      {/* Category badge and clear filter */}
+      {selectedCategory && selectedCategory !== 'all' && (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+          <Chip
+            label={`Category: ${getCategoryName(selectedCategory)}`}
+            color="primary"
+            variant="outlined"
+            size="small"
+          />
+          <Button
+            size="small"
+            onClick={clearCategory}
+            sx={{ textTransform: 'none', fontSize: '0.875rem' }}
+          >
+            Clear filter
+          </Button>
+        </Box>
+      )}
+
       {/* Results count */}
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Found {resultsCount} product{resultsCount !== 1 ? 's' : ''} for "{query}"
+        Found {resultsCount} product{resultsCount !== 1 ? 's' : ''}
+        {query && ` for "${query}"`}
+        {selectedCategory && selectedCategory !== 'all' && ` in ${getCategoryName(selectedCategory)}`}
       </Typography>
 
       {/* Product list */}

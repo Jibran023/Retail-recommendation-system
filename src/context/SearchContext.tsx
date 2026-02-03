@@ -13,6 +13,7 @@ const initialSearchState: SearchState = {
   loading: false,
   error: null,
   resultsCount: 0,
+  selectedCategory: null,
 };
 
 /**
@@ -49,6 +50,21 @@ function searchReducer(state: SearchState, action: SearchAction): SearchState {
     case 'CLEAR_SEARCH':
       return {
         ...initialSearchState,
+        selectedCategory: state.selectedCategory, // Preserve category filter
+      };
+
+    case 'FILTER_BY_CATEGORY':
+      return {
+        ...state,
+        selectedCategory: action.payload,
+        loading: true,
+        error: null,
+      };
+
+    case 'CLEAR_CATEGORY_FILTER':
+      return {
+        ...state,
+        selectedCategory: null,
       };
 
     default:
@@ -63,6 +79,8 @@ export interface SearchContextType {
   state: SearchState;
   search: (query: string) => Promise<void>;
   clearSearch: () => void;
+  filterByCategory: (categoryId: string | null) => Promise<void>;
+  clearCategoryFilter: () => void;
 }
 
 /**
@@ -115,12 +133,54 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'CLEAR_SEARCH' });
   }, []); // Empty deps - dispatch is stable from useReducer
 
+  // Filter by category - memoized to prevent infinite re-renders
+  const filterByCategory = useCallback(async (categoryId: string | null): Promise<void> => {
+    dispatch({ type: 'FILTER_BY_CATEGORY', payload: categoryId });
+
+    try {
+      // Get products by category
+      const { searchProducts } = await import('../services/apiClient');
+      const response = await searchProducts(state.query || ''); // Use existing query or empty string
+
+      if (response.success) {
+        // Filter results by category
+        const { getProductsByCategory } = await import('../services/mockCategories');
+        const filteredResults = getProductsByCategory(response.data, categoryId);
+
+        dispatch({
+          type: 'SEARCH_SUCCESS',
+          payload: {
+            results: filteredResults,
+            count: filteredResults.length,
+          },
+        });
+      } else {
+        const errorResponse = response as ApiErrorResponse;
+        dispatch({ type: 'SEARCH_ERROR', payload: errorResponse.error });
+      }
+    } catch (error) {
+      const appError: AppError = {
+        code: 'CATEGORY_FILTER_FAILED',
+        message: 'Failed to filter by category. Please try again.',
+        details: error,
+      };
+      dispatch({ type: 'SEARCH_ERROR', payload: appError });
+    }
+  }, [state.query]); // Depend on query to re-run when it changes
+
+  // Clear category filter - memoized to prevent infinite re-renders
+  const clearCategoryFilter = useCallback(() => {
+    dispatch({ type: 'CLEAR_CATEGORY_FILTER' });
+  }, []);
+
   // Memoize the context value to prevent unnecessary re-renders
   const value: SearchContextType = useMemo(() => ({
     state,
     search,
     clearSearch,
-  }), [state, search, clearSearch]);
+    filterByCategory,
+    clearCategoryFilter,
+  }), [state, search, clearSearch, filterByCategory, clearCategoryFilter]);
 
   return <SearchContext.Provider value={value}>{children}</SearchContext.Provider>;
 }
