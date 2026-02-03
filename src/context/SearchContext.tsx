@@ -1,4 +1,4 @@
-import { createContext, useReducer } from 'react';
+import { createContext, useReducer, useCallback, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import type { SearchState, SearchAction } from '../types/Search.types';
 import type { AppError } from '../types/Error.types';
@@ -77,7 +77,8 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(searchReducer, initialSearchState);
 
   // Search function (to be implemented with real API in Story 1.6)
-  const search = async (query: string): Promise<void> => {
+  // Memoized with useCallback to prevent infinite re-renders
+  const search = useCallback(async (query: string): Promise<void> => {
     dispatch({ type: 'SEARCH_START', payload: query });
 
     try {
@@ -107,17 +108,19 @@ export function SearchProvider({ children }: { children: ReactNode }) {
       };
       dispatch({ type: 'SEARCH_ERROR', payload: appError });
     }
-  };
+  }, []); // Empty deps - dispatch is stable from useReducer
 
-  const clearSearch = () => {
+  // Memoized to prevent infinite re-renders
+  const clearSearch = useCallback(() => {
     dispatch({ type: 'CLEAR_SEARCH' });
-  };
+  }, []); // Empty deps - dispatch is stable from useReducer
 
-  const value: SearchContextType = {
+  // Memoize the context value to prevent unnecessary re-renders
+  const value: SearchContextType = useMemo(() => ({
     state,
     search,
     clearSearch,
-  };
+  }), [state, search, clearSearch]);
 
   return <SearchContext.Provider value={value}>{children}</SearchContext.Provider>;
 }

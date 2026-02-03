@@ -39,3 +39,6 @@
   the agent identified that there are 7 critical places where different agents might interpret it differently and so it asked me to provide my input on those places. These were mostly associated with the naming conventions in the database, routes, error handling etc.
 
   At the end of the architecture phase, the agent asked me if I wanted to validate the architecture. I told it to go ahead and validate it. It took a while to validate the architecture and then it gave me a report of the validation.
+
+  In the implementation phase, i got an issue in the search bar. The problem was that search and clearSearch functions were recreated on every render of SearchProvider, which triggers the useEffect in SearchBar to run again. 
+  This created an infinite loop.
