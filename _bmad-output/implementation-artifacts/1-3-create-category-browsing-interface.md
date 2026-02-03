@@ -1,6 +1,6 @@
 # Story 1.3: Create Category Browsing Interface
 
-Status: in-progress
+Status: done
 
 ## Story
 
