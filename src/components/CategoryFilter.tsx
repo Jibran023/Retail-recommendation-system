@@ -1,6 +1,7 @@
 import { Box } from '@mui/material';
 import { categories } from '../services/mockCategories';
 import { useCategoryFilter } from '../hooks/useCategoryFilter';
+import { useState } from 'react';
 
 /**
  * CategoryFilter component for browsing products by category
@@ -19,14 +20,21 @@ import { useCategoryFilter } from '../hooks/useCategoryFilter';
  */
 export function CategoryFilter() {
   const { selectedCategory, setCategory } = useCategoryFilter();
+  const [focusedIndex, setFocusedIndex] = useState<number>(0);
 
   const handleCategoryClick = async (categoryId: string) => {
     await setCategory(categoryId);
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent, categoryId: string) => {
-    // Keyboard navigation: Enter or Space to select category
-    if (event.key === 'Enter' || event.key === ' ') {
+  const handleKeyDown = (event: React.KeyboardEvent, index: number, categoryId: string) => {
+    // Keyboard navigation: Arrow keys to navigate between categories
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      setFocusedIndex(Math.max(0, index - 1));
+    } else if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      setFocusedIndex(Math.min(categories.length - 1, index + 1));
+    } else if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       handleCategoryClick(categoryId);
     }
@@ -62,14 +70,16 @@ export function CategoryFilter() {
       role="tablist"
       aria-label="Product categories"
     >
-      {categories.map((category) => {
+      {categories.map((category, index) => {
         const isActive = selectedCategory === category.id;
+        const isFocused = focusedIndex === index;
 
         return (
           <Box
             key={category.id}
             onClick={() => handleCategoryClick(category.id)}
-            onKeyDown={(e) => handleKeyDown(e, category.id)}
+            onKeyDown={(e) => handleKeyDown(e, index, category.id)}
+            onFocus={() => setFocusedIndex(index)}
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -88,6 +98,7 @@ export function CategoryFilter() {
               fontWeight: isActive ? 600 : 400,
               whiteSpace: 'nowrap',
               transition: 'all 0.2s ease-in-out',
+              boxShadow: isFocused ? '0 0 0 2px primary.main' : 'none',
               '&:hover': {
                 backgroundColor: isActive ? 'primary.dark' : 'action.hover',
                 transform: 'scale(1.02)',
@@ -104,7 +115,7 @@ export function CategoryFilter() {
             role="tab"
             aria-selected={isActive}
             aria-label={category.name}
-            tabIndex={0}
+            tabIndex={index === 0 ? 0 : -1}
           >
             {category.name}
           </Box>

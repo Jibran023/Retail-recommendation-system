@@ -32,4 +32,38 @@ describe('useCategoryFilter', () => {
 
     expect(result.current.selectedCategory).toBeNull();
   });
+
+  it('should update selectedCategory when setCategory is called', async () => {
+    const { result } = renderHook(() => useCategoryFilter(), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current.selectedCategory).toBeNull();
+
+    await act(async () => {
+      await result.current.setCategory('cooking-oil');
+    });
+
+    expect(result.current.selectedCategory).toBe('cooking-oil');
+  });
+
+  it('should clear selectedCategory when clearCategory is called', async () => {
+    const { result } = renderHook(() => useCategoryFilter(), {
+      wrapper: Wrapper,
+    });
+
+    // First set a category
+    await act(async () => {
+      await result.current.setCategory('spices');
+    });
+
+    expect(result.current.selectedCategory).toBe('spices');
+
+    // Then clear it
+    act(() => {
+      result.current.clearCategory();
+    });
+
+    expect(result.current.selectedCategory).toBeNull();
+  });
 });

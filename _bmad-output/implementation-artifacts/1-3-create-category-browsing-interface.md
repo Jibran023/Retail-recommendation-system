@@ -373,4 +373,32 @@ None - Story creation
 
 ### File List
 
-*To be populated during implementation*
+**Components Created:**
+- `src/components/CategoryFilter.tsx` - Category selection with horizontal scroll (mobile) and flex wrap (desktop), arrow key navigation support, 44x44px touch targets
+
+**Hooks Created:**
+- `src/hooks/useCategoryFilter.ts` - Category filter hook with setCategory and clearCategory functions
+
+**Services Created:**
+- `src/services/mockCategories.ts` - Category data (9 categories) and getProductsByCategory filtering function
+
+**Types Created:**
+- `src/types/Category.types.ts` - Category interface
+
+**Types Modified:**
+- `src/types/Search.types.ts` - Added selectedCategory field and FILTER_BY_CATEGORY, CLEAR_CATEGORY_FILTER actions
+
+**Context Modified:**
+- `src/context/SearchContext.tsx` - Added filterByCategory and clearCategoryFilter functions with useCallback memoization (prevents infinite loops!)
+
+**Components Modified:**
+- `src/components/SearchResults.tsx` - Added category badge display and "Clear filter" button
+
+**Root Modified:**
+- `src/App.tsx` - Added CategoryFilter component above SearchBar
+
+**Tests Created:**
+- `__tests__/components/CategoryFilter.test.tsx` - 6 tests covering rendering, ARIA roles, click selection, "All Categories" clear filter, Enter key, Space key
+- `__tests__/hooks/useCategoryFilter.test.ts` - 4 tests covering context availability, initial state, setCategory, clearCategory
+
+**Files Modified:**
