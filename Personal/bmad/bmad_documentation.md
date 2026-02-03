@@ -33,3 +33,9 @@
   The agent didn't make the workflow file after the analysis phase. I asked the agent to make the workflow file after the analysis phase upon which it created the workflow file. It also denied of any such file to be made and reinforced that the product brief is the workflow file and a sprint yml file is created after phase 4.
 
   The agent got a bit slow as the chat has gotten long. It did advise to make new chats for each phase and to not mix up the phases though.
+
+  In phase 3, while building the architecture, the agent figured out which technologies to use based on my product brief and the requirements I had set. It suggested React, TypeScript, and Jest as the core technologies for the project. It did web search to figure out the best technologies to use for the project. Initially, it asked me for permissions to access the internet and I gave it permission. It gave two options, vite or create-react-app. I chose vite as it was recommended by the agent since create-react-app is not recommended anymore.
+
+  the agent identified that there are 7 critical places where different agents might interpret it differently and so it asked me to provide my input on those places. These were mostly associated with the naming conventions in the database, routes, error handling etc.
+
+  At the end of the architecture phase, the agent asked me if I wanted to validate the architecture. I told it to go ahead and validate it. It took a while to validate the architecture and then it gave me a report of the validation.

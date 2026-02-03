@@ -1,35 +1,50 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Container, Typography, Box } from '@mui/material';
+import { SearchProvider } from './context/SearchContext';
+import { SearchBar } from './components/SearchBar';
+import { SearchResults } from './components/SearchResults';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import theme from './theme';
 
-function App() {
-  const [count, setCount] = useState(0)
-
+/**
+ * Main App component
+ *
+ * Features:
+ * - Product search UI with MUI components
+ * - Search context for state management
+ * - WCAG AA compliant theme
+ * - Responsive layout
+ */
+function AppContent() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Box sx={{ textAlign: 'center', mb: 4 }}>
+        <Typography variant="h3" component="h1" gutterBottom>
+          Grocery Price Comparison
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Compare prices across multiple stores in Pakistan
+        </Typography>
+      </Box>
+
+      <SearchBar />
+      <SearchResults />
+    </Container>
+  );
 }
 
-export default App
+/**
+ * App root component with providers
+ */
+function App() {
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <SearchProvider>
+        <AppContent />
+      </SearchProvider>
+    </ThemeProvider>
+  );
+}
+
+export default App;
