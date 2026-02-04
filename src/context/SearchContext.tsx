@@ -94,7 +94,7 @@ export const SearchContext = createContext<SearchContextType | undefined>(undefi
 export function SearchProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(searchReducer, initialSearchState);
 
-  // Search function (to be implemented with real API in Story 1.6)
+  // Search function with real Supabase API integration
   // Memoized with useCallback to prevent infinite re-renders
   const search = useCallback(async (query: string): Promise<void> => {
     dispatch({ type: 'SEARCH_START', payload: query });
@@ -137,21 +137,23 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   const filterByCategory = useCallback(async (categoryId: string | null): Promise<void> => {
     dispatch({ type: 'FILTER_BY_CATEGORY', payload: categoryId });
 
+    if (!categoryId) {
+      // Clear filter if no category selected
+      dispatch({ type: 'CLEAR_CATEGORY_FILTER' });
+      return;
+    }
+
     try {
-      // Get products by category
-      const { searchProducts } = await import('../services/apiClient');
-      const response = await searchProducts(state.query || ''); // Use existing query or empty string
+      // Get products by category from Supabase
+      const { getProductsByCategory: fetchByCategory } = await import('../services/apiClient');
+      const response = await fetchByCategory(categoryId);
 
       if (response.success) {
-        // Filter results by category
-        const { getProductsByCategory } = await import('../services/mockCategories');
-        const filteredResults = getProductsByCategory(response.data, categoryId);
-
         dispatch({
           type: 'SEARCH_SUCCESS',
           payload: {
-            results: filteredResults,
-            count: filteredResults.length,
+            results: response.data,
+            count: response.data.length,
           },
         });
       } else {
@@ -166,7 +168,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
       };
       dispatch({ type: 'SEARCH_ERROR', payload: appError });
     }
-  }, [state.query]); // Depend on query to re-run when it changes
+  }, []); // No dependencies - categoryId is passed as parameter
 
   // Clear category filter - memoized to prevent infinite re-renders
   const clearCategoryFilter = useCallback(() => {

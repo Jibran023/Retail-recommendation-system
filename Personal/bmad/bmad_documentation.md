@@ -42,3 +42,73 @@
 
   In the implementation phase, i got an issue in the search bar. The problem was that search and clearSearch functions were recreated on every render of SearchProvider, which triggers the useEffect in SearchBar to run again. 
   This created an infinite loop.
+
+  Faced issues with the database queries. The agent was not able to fetch the prices of the products. Fixed it by providing it the database tables and their content.
+
+  Testing Agents provided by BMad:
+  BMAD Testing Agents Overview
+                                                                                                                    
+  1. Test Framework Setup (bmad-bmm-testarch-framework)
+
+  - When to use: At the start of a project to set up your testing infrastructure
+  - What it does: Initializes a production-ready test framework (Playwright or Cypress) with fixtures, helpers, and 
+  configuration
+  - Example: "Set up a Playwright test framework for my React project"
+
+  2. Test Design (bmad-bmm-testarch-test-design)
+
+  - When to use: During solutioning or implementation planning
+  - What it does:
+    - System-level testability review (Solutioning phase)
+    - Epic-level test planning (Implementation phase)
+  - Example: "Design tests for the search functionality epic"
+
+  3. ATDD / TDD (bmad-bmm-testarch-atdd)
+
+  - When to use: Before implementing a feature (Test-Driven Development)
+  - What it does: Generates failing acceptance tests first, then you implement to make them pass
+  (Red-Green-Refactor)
+  - Example: "Create acceptance tests for the shopping cart feature"
+
+  4. Test Automation (bmad-bmm-testarch-automate)
+
+  - When to use: After implementation to expand test coverage
+  - What it does: Analyzes existing code and generates comprehensive automated tests
+  - Example: "Generate automated tests for the SearchBar component"
+
+  5. Test Review (bmad-bmm-testarch-test-review)
+
+  - When to use: To validate test quality
+  - What it does: Reviews tests against best practices and identifies gaps
+  - Example: "Review the quality of my existing search tests"
+
+  6. Requirements-to-Tests Traceability (bmad-bmm-testarch-trace)
+
+  - When to use: Before release to validate coverage
+  - What it does: Generates traceability matrix, analyzes coverage, and makes quality gate decisions
+  (PASS/CONCERNS/FAIL/WAIVED)
+  - Example: "Analyze test coverage for Story 1.3"
+
+  7. CI/CD Pipeline (bmad-bmm-testarch-ci)
+
+  - When to use: To set up automated testing in your deployment pipeline
+  - What it does: Scaffolds CI/CD quality pipeline with test execution, burn-in loops, and artifact collection      
+  - Example: "Set up GitHub Actions to run tests on every push"
+
+  8. Non-Functional Requirements (NFR) (bmad-bmm-testarch-nfr)
+
+  - When to use: Before release to assess quality attributes
+  - What it does: Validates performance, security, reliability, and maintainability
+  - Example: "Assess the NFR compliance of the search feature"
+
+  ---
+  How to Use These Agents
+
+  You can invoke these agents using me (the Skill tool). For example:
+
+  "Use the test automation agent to generate tests for SearchBar.tsx"
+  "Set up a Playwright test framework for my project"
+  "Review the test coverage for Story 1.3"
+  "Create ATDD tests for the category browsing feature"
+
+  These were not provided as the recommended framework for my project initially so we followed JEST. Now we will try to implement these agents to see if they help us in building a better product.

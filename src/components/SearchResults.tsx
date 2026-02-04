@@ -35,7 +35,7 @@ export function SearchResults() {
   // Loading state with skeleton UI
   if (loading) {
     return (
-      <Box sx={{ maxWidth: 800, mx: 'auto', my: 2 }}>
+      <Box sx={{ maxWidth: 800, mx: 'auto', my: 2 }} data-testid="loading-state">
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           Searching products...
         </Typography>
@@ -62,7 +62,7 @@ export function SearchResults() {
   // Error state
   if (error) {
     return (
-      <Alert severity="error" sx={{ my: 2 }}>
+      <Alert data-testid="error-message" severity="error" sx={{ my: 2 }}>
         <AlertTitle>Search Error</AlertTitle>
         {error.message}
       </Alert>
@@ -72,7 +72,7 @@ export function SearchResults() {
   // Empty state (no query entered)
   if (query.trim() === '') {
     return (
-      <Box sx={{ textAlign: 'center', py: 8 }}>
+      <Box data-testid="empty-state" sx={{ textAlign: 'center', py: 8 }}>
         <Typography variant="h6" color="text.secondary" gutterBottom>
           Start searching for products
         </Typography>
@@ -86,7 +86,7 @@ export function SearchResults() {
   // No results state
   if (results.length === 0) {
     return (
-      <Box sx={{ textAlign: 'center', py: 8 }}>
+      <Box data-testid="no-results" sx={{ textAlign: 'center', py: 8 }}>
         <Typography variant="h6" color="text.secondary" gutterBottom>
           No products found
         </Typography>
@@ -99,7 +99,7 @@ export function SearchResults() {
 
   // Results display
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', my: 2 }}>
+    <Box data-testid="search-results" sx={{ maxWidth: 800, mx: 'auto', my: 2 }}>
       {/* Category badge and clear filter */}
       {selectedCategory && selectedCategory !== 'all' && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
@@ -131,6 +131,7 @@ export function SearchResults() {
         {results.map((product, index) => (
           <div key={product.id}>
             <ListItem
+              data-testid="product-card"
               alignItems="flex-start"
               sx={{
                 bgcolor: 'background.paper',

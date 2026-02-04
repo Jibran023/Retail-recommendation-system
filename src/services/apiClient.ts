@@ -1,4 +1,5 @@
 import type { AppError } from '../types/Error.types';
+import type { Product } from '../types/Product.types';
 
 /**
  * API Response Types following Architecture specification
@@ -23,9 +24,7 @@ export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
  * API Client for backend communication
  *
  * Implements the {success, data/error} wrapper pattern per Architecture
- * This will be integrated with real Supabase API in Story 1.6
- *
- * Current implementation uses mock data for development
+ * Uses Supabase REST API for product data
  */
 
 /**
@@ -36,10 +35,9 @@ export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
  */
 export async function searchProducts(query: string): Promise<ApiResponse<Product[]>> {
   try {
-    // TODO: Replace with actual API call in Story 1.6
-    // For now, use mock service
-    const { searchProductsMock } = await import('./mockProducts');
-    const results = await searchProductsMock(query);
+    // Import Supabase client dynamically
+    const { searchProducts: supabaseSearch } = await import('./supabaseClient');
+    const results = await supabaseSearch(query);
 
     return {
       success: true,
@@ -60,18 +58,58 @@ export async function searchProducts(query: string): Promise<ApiResponse<Product
 }
 
 /**
- * Type definition for Product (will be imported from types in Story 1.6)
- * TODO: Remove this type when proper imports are established
+ * Get products by category
+ *
+ * @param category - Category name
+ * @returns Promise with API response format
  */
-interface Product {
-  id: string;
-  name: string;
-  category: string;
-  prices: {
-    storeId: string;
-    storeName: string;
-    price: number;
-    available: boolean;
-    lastUpdated: string;
-  }[];
+export async function getProductsByCategory(category: string): Promise<ApiResponse<Product[]>> {
+  try {
+    const { getProductsByCategory: supabaseGetByCategory } = await import('./supabaseClient');
+    const results = await supabaseGetByCategory(category);
+
+    return {
+      success: true,
+      data: results,
+    };
+  } catch (error) {
+    const appError: AppError = {
+      code: 'CATEGORY_FETCH_FAILED',
+      message: 'Failed to load products in this category. Please try again.',
+      details: error,
+    };
+
+    return {
+      success: false,
+      error: appError,
+    };
+  }
+}
+
+/**
+ * Get all categories
+ *
+ * @returns Promise with API response format
+ */
+export async function getCategories(): Promise<ApiResponse<string[]>> {
+  try {
+    const { getCategories: supabaseGetCategories } = await import('./supabaseClient');
+    const categories = await supabaseGetCategories();
+
+    return {
+      success: true,
+      data: categories,
+    };
+  } catch (error) {
+    const appError: AppError = {
+      code: 'CATEGORIES_FETCH_FAILED',
+      message: 'Failed to load categories. Please try again.',
+      details: error,
+    };
+
+    return {
+      success: false,
+      error: appError,
+    };
+  }
 }

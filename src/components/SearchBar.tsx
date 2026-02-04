@@ -1,14 +1,13 @@
-import { useState, useEffect } from 'react';
-import { TextField, InputAdornment, CircularProgress, Box } from '@mui/material';
+import { useState } from 'react';
+import { TextField, InputAdornment, CircularProgress, Box, IconButton } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { useSearch } from '../hooks/useSearch';
-import useDebounce from '../hooks/useDebounce';
 
 /**
  * SearchBar component for product search
  *
  * Features:
- * - Debounced input (300ms) to reduce API calls
+ * - Manual search on Enter key or button click
  * - Loading indicator during search
  * - English and Roman Urdu text support
  * - WCAG AA compliant (16px font, 44x44px touch targets)
@@ -22,35 +21,23 @@ export function SearchBar() {
   const [inputValue, setInputValue] = useState('');
   const { state, search, clearSearch } = useSearch();
 
-  // Debounce the input value to reduce API calls
-  const debouncedQuery = useDebounce(inputValue, 300);
-
-  // Trigger search when debounced value changes
-  useEffect(() => {
-    const performSearch = async () => {
-      if (debouncedQuery.trim() === '') {
-        clearSearch();
-        return;
-      }
-      await search(debouncedQuery);
-    };
-
-    performSearch();
-  }, [debouncedQuery, search, clearSearch]);
-
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
   };
 
+  const handleSearch = () => {
+    const query = inputValue.trim();
+    if (query === '') {
+      clearSearch();
+    } else {
+      search(query);
+    }
+  };
+
   const handleKeyDown = (event: React.KeyboardEvent) => {
-    // Keyboard navigation: Allow Enter key to trigger immediate search
+    // Keyboard navigation: Allow Enter key to trigger search
     if (event.key === 'Enter') {
-      const query = inputValue.trim();
-      if (query === '') {
-        clearSearch();
-      } else {
-        search(query);
-      }
+      handleSearch();
     }
   };
 
@@ -68,15 +55,33 @@ export function SearchBar() {
           startAdornment: (
             <InputAdornment position="start">
               {state.loading ? (
-                <CircularProgress size={20} aria-label="Loading search results" />
+                <CircularProgress data-testid="loading-spinner" size={20} aria-label="Loading search results" />
               ) : (
                 <SearchIcon aria-label="Search" />
               )}
             </InputAdornment>
           ),
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                data-testid="search-button"
+                onClick={handleSearch}
+                disabled={state.loading || inputValue.trim() === ''}
+                aria-label="Search"
+                sx={{
+                  // Ensure minimum touch target size (44x44px)
+                  minWidth: 44,
+                  minHeight: 44,
+                }}
+              >
+                <SearchIcon />
+              </IconButton>
+            </InputAdornment>
+          ),
         }}
         // WCAG AA compliance: Ensure touch targets are at least 44x44px
         inputProps={{
+          'data-testid': 'search-input',
           'aria-label': 'Search products',
           'aria-describedby': 'search-description',
           style: {
@@ -97,7 +102,7 @@ export function SearchBar() {
         component="span"
         sx={{ display: 'none' }}
       >
-        Type to search for products. Results will appear below as you type.
+        Type to search for products and press Enter or click the search button.
       </Box>
     </Box>
   );

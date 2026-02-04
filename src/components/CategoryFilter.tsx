@@ -42,6 +42,7 @@ export function CategoryFilter() {
 
   return (
     <Box
+      data-testid="category-filter"
       sx={{
         width: '100%',
         maxWidth: 1200,
@@ -77,6 +78,7 @@ export function CategoryFilter() {
         return (
           <Box
             key={category.id}
+            data-testid={`category-${category.id}`}
             onClick={() => handleCategoryClick(category.id)}
             onKeyDown={(e) => handleKeyDown(e, index, category.id)}
             onFocus={() => setFocusedIndex(index)}
