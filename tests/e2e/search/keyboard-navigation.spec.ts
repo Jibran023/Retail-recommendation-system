@@ -59,7 +59,7 @@ test.describe('Search Keyboard Navigation', () => {
   test('should not auto-search while typing', async ({ page }) => {
     let apiCallCount = 0;
 
-    // Track API calls
+    // Track API calls - set up before typing
     await page.route('**/rest/v1/products*', (route) => {
       apiCallCount++;
       route.fulfill({
@@ -69,15 +69,35 @@ test.describe('Search Keyboard Navigation', () => {
       });
     });
 
+    await page.route('**/rest/v1/prices*', (route) => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([]),
+      });
+    });
+
+    await page.route('**/rest/v1/stores*', (route) => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([]),
+      });
+    });
+
+    // Clear any initial input
+    await searchPage.searchInput.clear();
+
     // Type character by character with delays
     await searchPage.searchInput.type('Cooking', { delay: 100 });
+    await page.waitForTimeout(500);
 
     // API should NOT be called while typing
     expect(apiCallCount).toBe(0);
 
     // Press Enter to trigger search
     await page.keyboard.press('Enter');
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
 
     // Now API should be called
     expect(apiCallCount).toBeGreaterThan(0);

@@ -21,7 +21,7 @@ test.describe('Search Results', () => {
   });
 
   test('should show no results message when search returns empty', async ({ page }) => {
-    // Mock empty response
+    // Mock empty response for all endpoints
     await page.route('**/rest/v1/products*', (route) => {
       route.fulfill({
         status: 200,
@@ -30,11 +30,27 @@ test.describe('Search Results', () => {
       });
     });
 
-    await searchPage.search('Nonexistent Product');
-    await page.waitForTimeout(1000);
+    await page.route('**/rest/v1/prices*', (route) => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([]),
+      });
+    });
 
-    // Check for no results message
+    await page.route('**/rest/v1/stores*', (route) => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([]),
+      });
+    });
+
+    await searchPage.search('Nonexistent Product');
+
+    // Wait for the no-results element to be visible
     const noResults = page.locator('[data-testid="no-results"]');
+    await noResults.waitFor({ state: 'visible', timeout: 5000 });
     await expect(noResults).toBeVisible();
   });
 });
