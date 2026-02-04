@@ -49,7 +49,6 @@ export function SearchBar() {
         placeholder="Search products... (e.g., Cooking Oil, Daal, Rice)"
         value={inputValue}
         onChange={handleChange}
-        onKeyDown={handleKeyDown}
         disabled={state.loading}
         InputProps={{
           startAdornment: (
@@ -84,6 +83,7 @@ export function SearchBar() {
           'data-testid': 'search-input',
           'aria-label': 'Search products',
           'aria-describedby': 'search-description',
+          onKeyDown: handleKeyDown,
           style: {
             // Minimum height for touch target (FR42)
             minHeight: '44px',
