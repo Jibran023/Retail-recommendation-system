@@ -48,7 +48,7 @@ export function CategoryFilter() {
           ];
 
           setCategories(categoryObjects);
-          console.log('DEBUG [CategoryFilter]: Loaded categories from database:', categoryNames);
+          console.log('✅ [CategoryFilter]: Loaded categories from database:', categoryObjects);
         }
       } catch (error) {
         console.error('Failed to fetch categories:', error);

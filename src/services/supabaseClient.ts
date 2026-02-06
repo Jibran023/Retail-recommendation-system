@@ -137,17 +137,18 @@ export async function searchProducts(query: string): Promise<Product[]> {
 /**
  * Get all products in a specific category
  *
- * @param category - Category ID or name
+ * @param category - Category name from database
  * @returns Promise with products in the category
  */
 export async function getProductsByCategory(category: string): Promise<Product[]> {
   console.log('DEBUG [getProductsByCategory]: Fetching products for category:', category);
+  console.log('DEBUG [getProductsByCategory]: Query will be: products?category=ilike.*' + category + '*&select=*&order=name.asc');
 
   // Import category mapping to get the actual database category name
   const { categoryDatabaseNameMap } = await import('./mockCategories');
   const categoryNames = categoryDatabaseNameMap[category] || [category];
 
-  console.log('DEBUG [getProductsByCategory]: Trying category names:', categoryNames);
+  console.log('DEBUG [getProductsByCategory]: Category mapping for "' + category + '":', categoryNames);
 
   // Try each possible category name until we find results
   // Use ILIKE for case-insensitive partial matching
@@ -159,7 +160,7 @@ export async function getProductsByCategory(category: string): Promise<Product[]
     try {
       console.log(`DEBUG [getProductsByCategory]: Trying category name "${categoryName}"`);
 
-      // Try case-insensitive partial match first
+      // Try case-insensitive partial match
       const fetched = await supabaseFetch<any[]>(
         `products?category=ilike.*${encodedCategory}*&select=*&order=name.asc`
       );
@@ -167,6 +168,7 @@ export async function getProductsByCategory(category: string): Promise<Product[]
       if (fetched.length > 0) {
         products = fetched;
         console.log(`DEBUG [getProductsByCategory]: ✅ Found ${products.length} products for category "${category}" using name "${categoryName}"`);
+        console.log('DEBUG [getProductsByCategory]: Products:', fetched.map(p => ({ name: p.name, category: p.category })));
         break; // Use the first match
       } else {
         console.log(`DEBUG [getProductsByCategory]: ❌ No products found for "${categoryName}"`);
@@ -244,13 +246,19 @@ export async function getCategories(): Promise<string[]> {
   // We'll fetch all products and extract unique categories
   // For production, consider creating a dedicated RPC function or a categories table
 
-  const products = await supabaseFetch<{ category: string }[]>(
-    'products?select=category'
+  const products = await supabaseFetch<any[]>(
+    'products?select=name,category&order=category.asc'
   );
+
+  console.log('DEBUG [getCategories]: All products with categories:', products);
 
   // Extract unique categories
   const categories = new Set(products.map((p) => p.category));
-  return Array.from(categories).sort();
+  const categoryArray = Array.from(categories).sort();
+
+  console.log('DEBUG [getCategories]: Unique categories found:', categoryArray);
+
+  return categoryArray;
 }
 
 /**
