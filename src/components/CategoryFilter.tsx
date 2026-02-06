@@ -1,7 +1,7 @@
-import { Box } from '@mui/material';
-import { categories } from '../services/mockCategories';
+import { Box, Typography, CircularProgress } from '@mui/material';
 import { useCategoryFilter } from '../hooks/useCategoryFilter';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import type { Category } from '../types/Category.types';
 
 /**
  * CategoryFilter component for browsing products by category
@@ -21,6 +21,44 @@ import { useState } from 'react';
 export function CategoryFilter() {
   const { selectedCategory, setCategory } = useCategoryFilter();
   const [focusedIndex, setFocusedIndex] = useState<number>(0);
+  const [categories, setCategories] = useState<Category[]>([
+    { id: 'all', name: 'All Categories', icon: 'Apps' }
+  ]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // Fetch categories from database on mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const { getCategories } = await import('../services/apiClient');
+        const response = await getCategories();
+
+        if (response.success) {
+          const categoryNames = response.data;
+
+          // Convert category names to Category objects
+          // Use the actual category name as the ID (this ensures it matches the database)
+          const categoryObjects: Category[] = [
+            { id: 'all', name: 'All Categories', icon: 'Apps' },
+            ...categoryNames.map((name) => ({
+              id: name, // Use the actual database category name as the ID
+              name: name,
+              icon: 'Apps', // Default icon
+            }))
+          ];
+
+          setCategories(categoryObjects);
+          console.log('DEBUG [CategoryFilter]: Loaded categories from database:', categoryNames);
+        }
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleCategoryClick = async (categoryId: string) => {
     await setCategory(categoryId);
@@ -39,6 +77,18 @@ export function CategoryFilter() {
       handleCategoryClick(categoryId);
     }
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', mb: 2, display: 'flex', justifyContent: 'center', gap: 1 }}>
+        <CircularProgress size={24} />
+        <Typography variant="body2" color="text.secondary">
+          Loading categories...
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box
