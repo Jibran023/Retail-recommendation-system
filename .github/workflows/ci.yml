@@ -7,6 +7,12 @@ on:
     branches: [main, Development]
   workflow_dispatch:
 
+# Permissions needed for the workflow
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 # Cancel in-progress runs for the same branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

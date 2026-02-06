@@ -2,8 +2,8 @@ import type { Category } from '../types/Category.types';
 import type { Product } from '../types/Product.types';
 
 /**
- * Mock category data for development
- * This will be replaced with real Supabase data in Story 1.6
+ * Category data
+ * Maps category IDs to display names and database category values
  */
 
 export const categories: Category[] = [
@@ -17,6 +17,34 @@ export const categories: Category[] = [
   { id: 'beverages', name: 'Beverages', icon: 'LocalCafe' },
   { id: 'dairy', name: 'Dairy', icon: 'WaterDrop' },
 ];
+
+/**
+ * Maps category IDs to the actual category names stored in the database
+ * This is needed because Supabase stores categories by name, not by ID
+ */
+export const categoryDatabaseNameMap: Record<string, string[]> = {
+  'cooking-oil': ['Cooking Oil', 'cooking oil', 'CookingOil'],
+  'rice-grains': ['Rice & Grains', 'Rice', 'Grains', 'rice & grains'],
+  'pulses': ['Pulses', 'pulses', 'Daal', 'Lentils'],
+  'flour': ['Flour', 'flour', 'Atta', 'Wheat'],
+  'sugar': ['Sugar', 'sugar'],
+  'spices': ['Spices', 'spices'],
+  'beverages': ['Beverages', 'beverages'],
+  'dairy': ['Dairy', 'dairy', 'Milk', 'Yogurt'],
+};
+
+/**
+ * Get the database category name(s) for a given category ID
+ * Returns the first (primary) database name for Supabase queries
+ */
+export function getDatabaseCategoryName(categoryId: string): string {
+  if (categoryId === 'all' || !categoryId) {
+    return '';
+  }
+
+  const names = categoryDatabaseNameMap[categoryId];
+  return names ? names[0] : categoryId;
+}
 
 /**
  * Get products filtered by category

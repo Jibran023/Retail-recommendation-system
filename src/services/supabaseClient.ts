@@ -137,16 +137,39 @@ export async function searchProducts(query: string): Promise<Product[]> {
 /**
  * Get all products in a specific category
  *
- * @param category - Category name
+ * @param category - Category ID or name
  * @returns Promise with products in the category
  */
 export async function getProductsByCategory(category: string): Promise<Product[]> {
-  // Fetch products in the category
-  const products = await supabaseFetch<any[]>(
-    `products?category=eq.${encodeURIComponent(category)}&select=*&order=name.asc`
-  );
+  // Import category mapping to get the actual database category name
+  const { categoryDatabaseNameMap } = await import('./mockCategories');
+  const categoryNames = categoryDatabaseNameMap[category] || [category];
+
+  // Try each possible category name until we find results
+  // Use ILIKE for case-insensitive partial matching
+  let products: any[] = [];
+
+  for (const categoryName of categoryNames) {
+    const encodedCategory = encodeURIComponent(categoryName);
+
+    try {
+      // Try case-insensitive partial match first
+      const fetched = await supabaseFetch<any[]>(
+        `products?category=ilike.*${encodedCategory}*&select=*&order=name.asc`
+      );
+
+      if (fetched.length > 0) {
+        products = fetched;
+        console.log(`DEBUG [getProductsByCategory]: Found ${products.length} products for category "${category}" using name "${categoryName}"`);
+        break; // Use the first match
+      }
+    } catch (error) {
+      console.warn(`DEBUG [getProductsByCategory]: Failed to fetch with category "${categoryName}":`, error);
+    }
+  }
 
   if (!products.length) {
+    console.log(`DEBUG [getProductsByCategory]: No products found for category "${category}". Tried names:`, categoryNames);
     return [];
   }
 
