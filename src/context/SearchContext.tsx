@@ -146,14 +146,14 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     // Clear the search query when filtering by category to avoid confusion
     dispatch({ type: 'CLEAR_SEARCH' });
 
-    // Set the category
-    dispatch({ type: 'FILTER_BY_CATEGORY', payload: categoryId });
-
     if (!categoryId || categoryId === 'all') {
-      // Clear filter if no category selected
+      // Clear filter if no category selected - don't set loading since we're not fetching
       dispatch({ type: 'CLEAR_CATEGORY_FILTER' });
       return;
     }
+
+    // Set the category and loading state
+    dispatch({ type: 'FILTER_BY_CATEGORY', payload: categoryId });
 
     try {
       // Get products by category from Supabase
