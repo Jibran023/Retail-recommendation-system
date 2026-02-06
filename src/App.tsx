@@ -1,5 +1,6 @@
 import { Container, Typography, Box } from '@mui/material';
 import { SearchProvider } from './context/SearchContext';
+import { FilterProvider } from './context/FilterContext';
 import { CategoryFilter } from './components/CategoryFilter';
 import { SearchBar } from './components/SearchBar';
 import { SearchResults } from './components/SearchResults';
@@ -43,7 +44,9 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <SearchProvider>
-        <AppContent />
+        <FilterProvider>
+          <AppContent />
+        </FilterProvider>
       </SearchProvider>
     </ThemeProvider>
   );

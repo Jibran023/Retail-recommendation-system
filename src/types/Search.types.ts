@@ -2,6 +2,11 @@ import type { Product } from './Product.types';
 import type { AppError } from './Error.types';
 
 /**
+ * Sort options for product results
+ */
+export type SortOption = 'default' | 'price-asc' | 'price-desc';
+
+/**
  * Search state types
  */
 
@@ -12,6 +17,7 @@ export interface SearchState {
   error: AppError | null;
   resultsCount: number;
   selectedCategory: string | null; // Category filter
+  sortBy: SortOption; // Sort option
 }
 
 export type SearchAction =
@@ -20,4 +26,5 @@ export type SearchAction =
   | { type: 'SEARCH_ERROR'; payload: AppError }
   | { type: 'CLEAR_SEARCH' }
   | { type: 'FILTER_BY_CATEGORY'; payload: string | null }
-  | { type: 'CLEAR_CATEGORY_FILTER' };
+  | { type: 'CLEAR_CATEGORY_FILTER' }
+  | { type: 'SET_SORT'; payload: SortOption };

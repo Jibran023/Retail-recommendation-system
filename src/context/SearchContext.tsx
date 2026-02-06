@@ -1,6 +1,6 @@
 import { createContext, useReducer, useCallback, useMemo } from 'react';
 import type { ReactNode } from 'react';
-import type { SearchState, SearchAction } from '../types/Search.types';
+import type { SearchState, SearchAction, SortOption } from '../types/Search.types';
 import type { AppError } from '../types/Error.types';
 import type { ApiErrorResponse } from '../services/apiClient';
 
@@ -14,6 +14,7 @@ const initialSearchState: SearchState = {
   error: null,
   resultsCount: 0,
   selectedCategory: null,
+  sortBy: 'default',
 };
 
 /**
@@ -67,6 +68,12 @@ function searchReducer(state: SearchState, action: SearchAction): SearchState {
         selectedCategory: null,
       };
 
+    case 'SET_SORT':
+      return {
+        ...state,
+        sortBy: action.payload,
+      };
+
     default:
       return state;
   }
@@ -81,6 +88,7 @@ export interface SearchContextType {
   clearSearch: () => void;
   filterByCategory: (categoryId: string | null) => Promise<void>;
   clearCategoryFilter: () => void;
+  setSort: (sortBy: SortOption) => void;
 }
 
 /**
@@ -175,6 +183,11 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'CLEAR_CATEGORY_FILTER' });
   }, []);
 
+  // Set sort option - memoized to prevent infinite re-renders
+  const setSort = useCallback((sortBy: SortOption) => {
+    dispatch({ type: 'SET_SORT', payload: sortBy });
+  }, []);
+
   // Memoize the context value to prevent unnecessary re-renders
   const value: SearchContextType = useMemo(() => ({
     state,
@@ -182,7 +195,8 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     clearSearch,
     filterByCategory,
     clearCategoryFilter,
-  }), [state, search, clearSearch, filterByCategory, clearCategoryFilter]);
+    setSort,
+  }), [state, search, clearSearch, filterByCategory, clearCategoryFilter, setSort]);
 
   return <SearchContext.Provider value={value}>{children}</SearchContext.Provider>;
 }
