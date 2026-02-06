@@ -87,6 +87,34 @@ export async function getProductsByCategory(category: string): Promise<ApiRespon
 }
 
 /**
+ * Get all products
+ *
+ * @returns Promise with API response format
+ */
+export async function getAllProducts(): Promise<ApiResponse<Product[]>> {
+  try {
+    const { getAllProducts: supabaseGetAllProducts } = await import('./supabaseClient');
+    const results = await supabaseGetAllProducts();
+
+    return {
+      success: true,
+      data: results,
+    };
+  } catch (error) {
+    const appError: AppError = {
+      code: 'PRODUCTS_FETCH_FAILED',
+      message: 'Failed to load products. Please try again.',
+      details: error,
+    };
+
+    return {
+      success: false,
+      error: appError,
+    };
+  }
+}
+
+/**
  * Get all categories
  *
  * @returns Promise with API response format

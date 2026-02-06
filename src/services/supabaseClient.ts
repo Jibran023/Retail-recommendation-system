@@ -254,6 +254,78 @@ export async function getCategories(): Promise<string[]> {
 }
 
 /**
+ * Get all products with prices from all stores
+ *
+ * @returns Promise with all products and their prices
+ */
+export async function getAllProducts(): Promise<Product[]> {
+  console.log('DEBUG [getAllProducts]: Fetching all products');
+
+  // Fetch all products
+  const products = await supabaseFetch<any[]>(
+    'products?select=*&order=name.asc'
+  );
+
+  console.log('DEBUG [getAllProducts]: Fetched', products.length, 'products');
+
+  if (!products.length) {
+    return [];
+  }
+
+  // Fetch all prices
+  const productIds = products.map((p) => p.id);
+  const productFilter = productIds.length === 1
+    ? `product_id=eq.${productIds[0]}`
+    : `product_id=in.(${productIds.join(',')})`;
+
+  console.log('DEBUG [getAllProducts]: Product IDs:', productIds);
+
+  const prices = await supabaseFetch<any[]>(
+    `prices?${productFilter}&select=*&order=price_cents.asc`
+  );
+
+  console.log('DEBUG [getAllProducts]: Fetched', prices.length, 'prices');
+
+  // Fetch all stores
+  const storeIds = [...new Set(prices.map((p) => p.store_id))];
+  const storeFilter = storeIds.length === 1
+    ? `id=eq.${storeIds[0]}`
+    : `id=in.(${storeIds.join(',')})`;
+
+  console.log('DEBUG [getAllProducts]: Store IDs:', storeIds);
+
+  const stores = await supabaseFetch<any[]>(
+    `stores?${storeFilter}&select=*`
+  );
+
+  console.log('DEBUG [getAllProducts]: Fetched', stores.length, 'stores');
+
+  const storeMap = new Map(stores.map((s) => [s.id, s]));
+
+  return products.map((product) => {
+    const productPrices = prices
+      .filter((p) => p.product_id === product.id)
+      .map((price) => {
+        const store = storeMap.get(price.store_id);
+        return {
+          storeId: price.store_id,
+          storeName: store?.name || 'Unknown Store',
+          price: price.price_cents,
+          available: price.availability,
+          lastUpdated: price.scraped_at,
+        };
+      });
+
+    return {
+      id: product.id,
+      name: product.name,
+      category: product.category,
+      prices: productPrices,
+    };
+  });
+}
+
+/**
  * Get all stores
  *
  * @returns Promise with list of stores
