@@ -282,8 +282,8 @@ export function SearchResults() {
     );
   }
 
-  // Empty state (no query entered)
-  if (query.trim() === '') {
+  // Empty state (no query entered and no category selected)
+  if (query.trim() === '' && !selectedCategory) {
     return (
       <Box data-testid="empty-state" sx={{ textAlign: 'center', py: 8 }}>
         <Typography variant="h6" color="text.secondary" gutterBottom>
