@@ -9,20 +9,41 @@ import { Page } from '@playwright/test';
 
 test.describe('Category & Search Integration', () => {
   test.beforeEach(async ({ page }) => {
+    // Mock categories API
+    await page.route('**/rest/v1/products*select=name,category*', (route) => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          { name: 'Product 1', category: 'Test Category 1' },
+          { name: 'Product 2', category: 'Test Category 2' },
+        ]),
+      });
+    });
+
     await page.goto('/');
+
+    // Wait for categories to load
+    await page.waitForSelector('[data-testid="category-all"]', { timeout: 5000 });
   });
 
   test('should filter products when category selected', async ({ page }) => {
     // Mock API response for category-filtered products
-    await page.route('**/rest/v1/products*', (route) => {
+    await page.route('**/rest/v1/products?*', (route) => {
+      // Don't intercept the categories call
+      if (route.request().url().includes('select=name,category')) {
+        route.continue();
+        return;
+      }
+
       route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify([
           {
             id: '1',
-            name: 'Cooking Oil 5kg - Habib',
-            category: 'Cooking Oil & Ghee',
+            name: 'Test Product',
+            category: 'Test Category 1',
           },
         ]),
       });
@@ -45,8 +66,8 @@ test.describe('Category & Search Integration', () => {
     });
 
     // Select a category
-    const cookingOilCategory = page.locator('[data-testid="category-cooking-oil"]');
-    await cookingOilCategory.click();
+    const testCategory = page.locator('[data-testid="category-Test Category 1"]');
+    await testCategory.click();
     await page.waitForTimeout(1000);
 
     // Verify page updated (filter was triggered)

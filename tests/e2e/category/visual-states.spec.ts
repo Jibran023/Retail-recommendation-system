@@ -9,11 +9,23 @@ import { Page } from '@playwright/test';
 
 test.describe('Category Visual States', () => {
   test.beforeEach(async ({ page }) => {
+    // Mock categories API
+    await page.route('**/rest/v1/products*select=name,category*', (route) => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          { name: 'Product 1', category: 'Test Category 1' },
+          { name: 'Product 2', category: 'Test Category 2' },
+        ]),
+      });
+    });
+
     await page.goto('/');
   });
 
   test('should show hover effect on category', async ({ page }) => {
-    const category = page.locator('[data-testid="category-cooking-oil"]');
+    const category = page.locator('[data-testid="category-Test Category 1"]');
 
     // Hover over category
     await category.hover();
@@ -53,7 +65,7 @@ test.describe('Category Visual States', () => {
   });
 
   test('should display inactive category with border', async ({ page }) => {
-    const category = page.locator('[data-testid="category-cooking-oil"]');
+    const category = page.locator('[data-testid="category-Test Category 1"]');
 
     // Get border width of inactive category
     const borderWidth = await category.evaluate((el) => {
