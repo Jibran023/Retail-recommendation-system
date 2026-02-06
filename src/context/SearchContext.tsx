@@ -143,9 +143,13 @@ export function SearchProvider({ children }: { children: ReactNode }) {
 
   // Filter by category - memoized to prevent infinite re-renders
   const filterByCategory = useCallback(async (categoryId: string | null): Promise<void> => {
+    // Clear the search query when filtering by category to avoid confusion
+    dispatch({ type: 'CLEAR_SEARCH' });
+
+    // Set the category
     dispatch({ type: 'FILTER_BY_CATEGORY', payload: categoryId });
 
-    if (!categoryId) {
+    if (!categoryId || categoryId === 'all') {
       // Clear filter if no category selected
       dispatch({ type: 'CLEAR_CATEGORY_FILTER' });
       return;

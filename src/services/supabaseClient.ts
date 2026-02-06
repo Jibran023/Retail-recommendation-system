@@ -141,9 +141,13 @@ export async function searchProducts(query: string): Promise<Product[]> {
  * @returns Promise with products in the category
  */
 export async function getProductsByCategory(category: string): Promise<Product[]> {
+  console.log('DEBUG [getProductsByCategory]: Fetching products for category:', category);
+
   // Import category mapping to get the actual database category name
   const { categoryDatabaseNameMap } = await import('./mockCategories');
   const categoryNames = categoryDatabaseNameMap[category] || [category];
+
+  console.log('DEBUG [getProductsByCategory]: Trying category names:', categoryNames);
 
   // Try each possible category name until we find results
   // Use ILIKE for case-insensitive partial matching
@@ -153,6 +157,8 @@ export async function getProductsByCategory(category: string): Promise<Product[]
     const encodedCategory = encodeURIComponent(categoryName);
 
     try {
+      console.log(`DEBUG [getProductsByCategory]: Trying category name "${categoryName}"`);
+
       // Try case-insensitive partial match first
       const fetched = await supabaseFetch<any[]>(
         `products?category=ilike.*${encodedCategory}*&select=*&order=name.asc`
@@ -160,8 +166,10 @@ export async function getProductsByCategory(category: string): Promise<Product[]
 
       if (fetched.length > 0) {
         products = fetched;
-        console.log(`DEBUG [getProductsByCategory]: Found ${products.length} products for category "${category}" using name "${categoryName}"`);
+        console.log(`DEBUG [getProductsByCategory]: ✅ Found ${products.length} products for category "${category}" using name "${categoryName}"`);
         break; // Use the first match
+      } else {
+        console.log(`DEBUG [getProductsByCategory]: ❌ No products found for "${categoryName}"`);
       }
     } catch (error) {
       console.warn(`DEBUG [getProductsByCategory]: Failed to fetch with category "${categoryName}":`, error);
@@ -169,7 +177,7 @@ export async function getProductsByCategory(category: string): Promise<Product[]
   }
 
   if (!products.length) {
-    console.log(`DEBUG [getProductsByCategory]: No products found for category "${category}". Tried names:`, categoryNames);
+    console.log(`DEBUG [getProductsByCategory]: ❌ No products found for category "${category}". Tried names:`, categoryNames);
     return [];
   }
 
