@@ -133,7 +133,7 @@ export function groupProductsByName(products: UnifiedProduct[]): Map<string, Uni
 export function mergeProductsForComparison(groupedProducts: Map<string, UnifiedProduct[]>): Product[] {
   const mergedProducts: Product[] = [];
 
-  for (const [name, products] of groupedProducts.entries()) {
+  for (const [_name, products] of groupedProducts.entries()) {
     // Use the first product's details as base
     const baseProduct = products[0];
 

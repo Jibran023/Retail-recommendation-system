@@ -5,8 +5,8 @@
  * Safe client-side grouping using existing data
  */
 
-import { Box, Card, CardContent, Typography, Chip, Stack, Avatar, IconButton, Collapse, Grid } from '@mui/material';
-import { ExpandMore as ExpandMoreIcon, ExpandLess as ExpandLessIcon, Star as StarIcon } from '@mui/icons-material';
+import { Box, Card, CardContent, Typography, Chip, IconButton, useTheme, alpha, Dialog, DialogTitle, DialogContent } from '@mui/material';
+import { ExpandMore as ExpandMoreIcon, Close as CloseIcon, Star as StarIcon, ShoppingCart } from '@mui/icons-material';
 import { useState } from 'react';
 import type { Product, ProductPrice } from '../types/Product.types';
 
@@ -25,7 +25,9 @@ interface ProductGroup {
 }
 
 export function GroupedProductsView({ products }: GroupedProductsViewProps) {
+  const theme = useTheme();
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
   // Group products by base_product_name
   const groupedProducts = products.reduce((groups: Record<string, Product[]>, product) => {
@@ -81,29 +83,42 @@ export function GroupedProductsView({ products }: GroupedProductsViewProps) {
   }
 
   return (
-    <Grid container spacing={2}>
+    <>
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: {
+          xs: 'repeat(1, 1fr)',
+          sm: 'repeat(2, 1fr)',
+          md: 'repeat(3, 1fr)',
+          lg: 'repeat(4, 1fr)',
+        },
+        gap: 2.5,
+      }}
+    >
       {productGroups.map((group) => {
         const isExpanded = expandedCard === group.base_product_name;
-        const hasMultipleVariants = group.products.length > 1;
 
         return (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={group.base_product_name}>
+          <>
+          <Box key={group.base_product_name} sx={{ position: 'relative' }}>
             <Card
               sx={{
-                height: '100%',
+                height: 380,
                 display: 'flex',
                 flexDirection: 'column',
-                transition: 'all 0.3s ease',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                position: 'relative',
+                overflow: 'hidden',
                 border: '1px solid',
                 borderColor: 'divider',
                 '&:hover': {
                   transform: 'translateY(-4px)',
-                  boxShadow: 4,
+                  boxShadow: theme.shadows[8],
                   borderColor: 'primary.main',
                 },
                 ...(isExpanded && {
-                  transform: 'translateY(-4px)',
-                  boxShadow: 4,
+                  boxShadow: theme.shadows[8],
                   borderColor: 'primary.main',
                   zIndex: 10,
                 }),
@@ -118,7 +133,7 @@ export function GroupedProductsView({ products }: GroupedProductsViewProps) {
                     position: 'absolute',
                     top: 8,
                     left: 8,
-                    bgcolor: 'success.main',
+                    bgcolor: alpha(theme.palette.success.main, 0.95),
                     color: 'white',
                     fontWeight: 600,
                     fontSize: '0.75rem',
@@ -130,19 +145,22 @@ export function GroupedProductsView({ products }: GroupedProductsViewProps) {
               {/* Product Image or Placeholder */}
               <Box
                 sx={{
-                  height: 120,
-                  bgcolor: 'action.hover',
+                  height: 140,
+                  bgcolor: alpha(theme.palette.primary.main, 0.04),
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   p: 2,
                 }}
               >
-                {group.image_url ? (
+                {group.image_url && !imageErrors.has(group.image_url) ? (
                   <Box
                     component="img"
                     src={group.image_url}
                     alt={group.base_product_name}
+                    onError={() => {
+                      setImageErrors(prev => new Set(prev).add(group.image_url));
+                    }}
                     sx={{
                       maxHeight: '100%',
                       maxWidth: '100%',
@@ -150,20 +168,43 @@ export function GroupedProductsView({ products }: GroupedProductsViewProps) {
                     }}
                   />
                 ) : (
-                  <Typography variant="h6" color="text.disabled">
-                    {group.base_product_name.charAt(0)}
-                  </Typography>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 1,
+                    }}
+                  >
+                    <ShoppingCart
+                      sx={{
+                        fontSize: 64,
+                        color: alpha(theme.palette.primary.main, 0.3),
+                      }}
+                    />
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: 'text.disabled',
+                        fontSize: '0.7rem',
+                        fontWeight: 500,
+                      }}
+                    >
+                      No Image
+                    </Typography>
+                  </Box>
                 )}
               </Box>
 
-              <CardContent sx={{ flexGrow: 1, pb: 1 }}>
+              <CardContent sx={{ flexGrow: 1, pb: 1, display: 'flex', flexDirection: 'column' }}>
                 {/* Brand Badge */}
                 {group.brand_name && (
                   <Chip
                     label={group.brand_name}
                     size="small"
                     variant="outlined"
-                    sx={{ mb: 1, height: 20, fontSize: '0.7rem' }}
+                    sx={{ mb: 1, height: 20, fontSize: '0.7rem', borderColor: alpha(theme.palette.primary.main, 0.3) }}
                   />
                 )}
 
@@ -189,102 +230,189 @@ export function GroupedProductsView({ products }: GroupedProductsViewProps) {
                   <Chip
                     label={`${group.products.length} ${group.products.length === 1 ? 'variant' : 'variants'}`}
                     size="small"
-                    sx={{ height: 20, fontSize: '0.65rem', bgcolor: 'info.50' }}
+                    sx={{ height: 20, fontSize: '0.65rem', bgcolor: alpha(theme.palette.info.main, 0.1), color: 'info.dark' }}
                   />
-                  <Chip label={group.category} size="small" sx={{ height: 20, fontSize: '0.65rem' }} />
+                  <Chip label={group.category} size="small" sx={{ height: 20, fontSize: '0.65rem', bgcolor: alpha(theme.palette.secondary.main, 0.1) }} />
                 </Box>
 
                 {/* Expand Button */}
                 <IconButton
-                  onClick={() => setExpandedCard(isExpanded ? null : group.base_product_name)}
+                  onClick={() => {
+                    setExpandedCard(isExpanded ? null : group.base_product_name);
+                  }}
                   sx={{
                     width: '100%',
                     height: 36,
                     borderRadius: 1,
-                    bgcolor: 'action.hover',
+                    bgcolor: alpha(theme.palette.primary.main, 0.05),
+                    '&:hover': {
+                      bgcolor: alpha(theme.palette.primary.main, 0.1),
+                    },
+                    transition: 'all 0.2s',
+                    mt: 'auto',
                   }}
                 >
                   <Typography variant="button" sx={{ flexGrow: 1, fontSize: '0.85rem' }}>
                     {isExpanded ? 'Hide' : 'View'} {group.products.length} {group.products.length === 1 ? 'variant' : 'variants'}
                   </Typography>
-                  {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                  <ExpandMoreIcon />
                 </IconButton>
-              </CardContent>
-
-              {/* Expanded Variants */}
-              <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-                <Box sx={{ p: 2, pt: 0, borderTop: 1, borderColor: 'divider', bgcolor: 'action.hover' }}>
-                  <Stack spacing={1}>
-                    {group.products.map((product) => {
-                      const prices = product.prices || [];
-                      const cheapestPrice = prices.length > 0 ? Math.min(...prices.map((p) => p.price)) : null;
-
-                      return (
-                        <Box
-                          key={product.id}
-                          sx={{
-                            p: 1.5,
-                            borderRadius: 1,
-                            bgcolor: 'background.paper',
-                            border: '1px solid',
-                            borderColor: 'divider',
-                          }}
-                        >
-                          {/* Size Badge */}
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-                            <Chip label={product.size_display || 'N/A'} size="small" sx={{ height: 22, fontSize: '0.7rem' }} />
-                            {cheapestPrice && (
-                              <Typography variant="body2" fontWeight="bold" color="success.main">
-                                {formatPrice(cheapestPrice)}
-                              </Typography>
-                            )}
-                          </Box>
-
-                          {/* Store Prices */}
-                          <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-                            {prices.map((price) => {
-                              const isCheapest = price.price === cheapestPrice;
-                              return (
-                                <Box
-                                  key={`${product.id}-${price.storeId}`}
-                                  sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 0.5,
-                                    px: 1,
-                                    py: 0.5,
-                                    borderRadius: 1,
-                                    bgcolor: isCheapest ? 'success.50' : 'action.hover',
-                                    border: isCheapest ? 1 : 0,
-                                    borderColor: 'success.main',
-                                  }}
-                                >
-                                  {isCheapest && <StarIcon sx={{ fontSize: 12, color: 'success.main' }} />}
-                                  <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 500 }}>
-                                    {getStoreDisplayName(price.storeId)}
-                                  </Typography>
-                                  <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 600 }}>
-                                    {formatPrice(price.price)}
-                                  </Typography>
-                                </Box>
-                              );
-                            })}
-                          </Stack>
-
-                          {/* Product Name */}
-                          <Typography variant="caption" sx={{ fontSize: '0.65rem', color: 'text.secondary', mt: 0.5, display: 'block' }}>
-                            {product.name}
-                          </Typography>
-                        </Box>
-                      );
-                    })}
-                  </Stack>
-                </Box>
-              </Collapse>
+                </CardContent>
             </Card>
-          </Grid>
+          </Box>
+
+          {/* Variants Dialog */}
+          <Dialog
+            open={isExpanded}
+            onClose={() => setExpandedCard(null)}
+            maxWidth="md"
+            fullWidth
+            PaperProps={{
+              sx: {
+                borderRadius: 3,
+                boxShadow: theme.shadows[12],
+              }
+            }}
+          >
+            <DialogTitle
+              sx={{
+                bgcolor: alpha(theme.palette.primary.main, 0.02),
+                borderBottom: 1,
+                borderColor: 'divider',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                py: 2,
+              }}
+            >
+              <Box>
+                <Typography variant="h6" fontWeight={600}>
+                  {group.base_product_name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {group.products.length} {group.products.length === 1 ? 'Variant' : 'Variants'} Available
+                </Typography>
+              </Box>
+              <IconButton
+                onClick={() => setExpandedCard(null)}
+                sx={{
+                  bgcolor: alpha(theme.palette.action.hover, 0.5),
+                  '&:hover': {
+                    bgcolor: alpha(theme.palette.action.hover, 0.8),
+                  },
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+
+            <DialogContent sx={{ p: 3 }}>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: {
+                    xs: 'repeat(1, 1fr)',
+                    sm: 'repeat(2, 1fr)',
+                  },
+                  gap: 2,
+                }}
+              >
+                {group.products.map((product) => {
+                  const prices = product.prices || [];
+                  const cheapestPrice = prices.length > 0 ? Math.min(...prices.map((p) => p.price)) : null;
+
+                  return (
+                    <Box
+                      key={product.id}
+                      sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        bgcolor: 'background.paper',
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        transition: 'all 0.2s',
+                        '&:hover': {
+                          borderColor: 'primary.main',
+                          boxShadow: theme.shadows[4],
+                          transform: 'translateY(-2px)',
+                        },
+                      }}
+                    >
+                      {/* Size Badge */}
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
+                        <Chip
+                          label={product.size_display || 'N/A'}
+                          size="medium"
+                          sx={{
+                            height: 28,
+                            fontSize: '0.85rem',
+                            fontWeight: 600,
+                            bgcolor: alpha(theme.palette.primary.main, 0.1),
+                          }}
+                        />
+                        {cheapestPrice && (
+                          <Typography variant="h6" fontWeight="bold" color="success.main">
+                            {formatPrice(cheapestPrice)}
+                          </Typography>
+                        )}
+                      </Box>
+
+                      {/* Product Name */}
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          mb: 1.5,
+                          color: 'text.secondary',
+                          fontSize: '0.85rem',
+                        }}
+                      >
+                        {product.name}
+                      </Typography>
+
+                      {/* Store Prices */}
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                        {prices.map((price) => {
+                          const isCheapest = price.price === cheapestPrice;
+                          return (
+                            <Box
+                              key={`${product.id}-${price.storeId}`}
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                px: 1.5,
+                                py: 1,
+                                borderRadius: 1.5,
+                                bgcolor: isCheapest
+                                  ? alpha(theme.palette.success.main, 0.1)
+                                  : alpha(theme.palette.action.hover, 0.3),
+                                border: isCheapest ? 1.5 : 0,
+                                borderColor: isCheapest ? 'success.main' : 'transparent',
+                              }}
+                            >
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                {isCheapest && <StarIcon sx={{ fontSize: 16, color: 'success.main' }} />}
+                                <Typography variant="body2" sx={{ fontWeight: 500, fontSize: '0.9rem' }}>
+                                  {getStoreDisplayName(price.storeId)}
+                                </Typography>
+                              </Box>
+                              <Typography variant="body2" sx={{ fontWeight: isCheapest ? 700 : 600, fontSize: '0.95rem' }}>
+                                {formatPrice(price.price)}
+                              </Typography>
+                            </Box>
+                          );
+                        })}
+                      </Box>
+                    </Box>
+                  );
+                })}
+              </Box>
+            </DialogContent>
+          </Dialog>
+          </>
         );
       })}
-    </Grid>
+    </Box>
+    </>
   );
 }

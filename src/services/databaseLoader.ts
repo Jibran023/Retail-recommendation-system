@@ -14,9 +14,9 @@ function getEnvVar(name: string): string | undefined {
   if (typeof import.meta !== 'undefined' && import.meta.env) {
     return import.meta.env[name];
   }
-  // Node.js environment
-  if (typeof process !== 'undefined' && process.env) {
-    return process.env[name];
+  // Node.js environment (type-safe check)
+  if (typeof (globalThis as any).process !== 'undefined' && (globalThis as any).process?.env) {
+    return (globalThis as any).process.env[name];
   }
   return undefined;
 }

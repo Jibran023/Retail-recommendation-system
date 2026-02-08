@@ -16,13 +16,15 @@ import {
   CardMedia,
   Typography,
   Chip,
-  Collapse,
   IconButton,
   Grid,
   Stack,
   Avatar,
   useTheme,
   alpha,
+  Popper,
+  Paper,
+  ClickAwayListener,
 } from '@mui/material';
 import {
   ExpandMore as ExpandMoreIcon,
@@ -73,8 +75,10 @@ interface ProductGroup {
 export function GroupedProductGrid({ category, searchQuery, limit = 50 }: GroupedProductsProps) {
   const theme = useTheme();
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [groups, setGroups] = useState<ProductGroup[]>([]);
   const [loading, setLoading] = useState(true);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
   // Fetch products on mount and when dependencies change
   useEffect(() => {
@@ -182,7 +186,7 @@ export function GroupedProductGrid({ category, searchQuery, limit = 50 }: Groupe
 
   if (loading) {
     return (
-      <Grid container spacing={2}>
+      <Grid container spacing={2.5}>
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={i}>
             <Card>
@@ -215,279 +219,331 @@ export function GroupedProductGrid({ category, searchQuery, limit = 50 }: Groupe
 
         return (
           <Grid item xs={12} sm={6} md={4} lg={3} key={group.base_product_name}>
-            <Card
+            <Box
               sx={{
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 position: 'relative',
-                overflow: 'visible',
-                border: '1px solid',
-                borderColor: 'divider',
-                '&:hover': {
-                  transform: 'translateY(-4px)',
-                  boxShadow: theme.shadows[8],
-                  borderColor: 'primary.main',
-                },
-                ...(isExpanded && {
-                  transform: 'translateY(-4px)',
-                  boxShadow: theme.shadows[8],
-                  borderColor: 'primary.main',
-                  zIndex: 10,
-                }),
               }}
             >
-              {/* Best Value Badge */}
-              {group.cheapestPrice > 0 && (
-                <Chip
-                  icon={<LocalOfferIcon sx={{ fontSize: 14 }} />}
-                  label={`From ${formatPrice(group.cheapestPrice)}`}
-                  size="small"
-                  sx={{
-                    position: 'absolute',
-                    top: 8,
-                    left: 8,
-                    bgcolor: alpha(theme.palette.success.main, 0.95),
-                    color: 'white',
-                    fontWeight: 600,
-                    fontSize: '0.75rem',
-                    zIndex: 2,
-                    boxShadow: theme.shadows[2],
-                  }}
-                />
-              )}
-
-              {/* Product Image */}
-              {group.image_url ? (
-                <CardMedia
-                  component="img"
-                  height="140"
-                  image={group.image_url}
-                  alt={group.base_product_name}
-                  sx={{
-                    objectFit: 'contain',
-                    p: 2,
-                    bgcolor: alpha(theme.palette.primary.main, 0.04),
-                  }}
-                />
-              ) : (
-                <Box
-                  sx={{
-                    height: 140,
-                    bgcolor: alpha(theme.palette.primary.main, 0.04),
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <StoreIcon sx={{ fontSize: 48, color: 'text.disabled' }} />
-                </Box>
-              )}
-
-              <CardContent sx={{ flexGrow: 1, pb: 1 }}>
-                {/* Brand Badge */}
-                {group.brand_name && (
+              <Card
+                sx={{
+                  height: 420,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  '&:hover': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: theme.shadows[8],
+                    borderColor: 'primary.main',
+                  },
+                  ...(isExpanded && {
+                    boxShadow: theme.shadows[8],
+                    borderColor: 'primary.main',
+                    zIndex: 10,
+                  }),
+                }}
+              >
+                {/* Best Value Badge */}
+                {group.cheapestPrice > 0 && (
                   <Chip
-                    label={group.brand_name}
+                    icon={<LocalOfferIcon sx={{ fontSize: 14 }} />}
+                    label={`From ${formatPrice(group.cheapestPrice)}`}
                     size="small"
-                    variant="outlined"
                     sx={{
-                      mb: 1,
-                      height: 20,
-                      fontSize: '0.7rem',
-                      borderColor: alpha(theme.palette.primary.main, 0.3),
+                      position: 'absolute',
+                      top: 8,
+                      left: 8,
+                      bgcolor: alpha(theme.palette.success.main, 0.95),
+                      color: 'white',
+                      fontWeight: 600,
+                      fontSize: '0.75rem',
+                      zIndex: 2,
+                      boxShadow: theme.shadows[2],
                     }}
                   />
                 )}
 
-                {/* Product Name */}
-                <Typography
-                  variant="subtitle1"
-                  component="div"
-                  sx={{
-                    fontWeight: 600,
-                    mb: 0.5,
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                    lineHeight: 1.3,
-                    minHeight: 34,
-                  }}
-                >
-                  {group.base_product_name}
-                </Typography>
-
-                {/* Variant Count & Category */}
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1.5, flexWrap: 'wrap' }}>
-                  <Chip
-                    label={`${group.variantCount} sizes`}
-                    size="small"
+                {/* Product Image */}
+                {group.image_url && !imageErrors.has(group.image_url) ? (
+                  <CardMedia
+                    component="img"
+                    height="160"
+                    image={group.image_url}
+                    alt={group.base_product_name}
+                    onError={() => {
+                      setImageErrors(prev => new Set(prev).add(group.image_url));
+                    }}
                     sx={{
-                      height: 20,
-                      fontSize: '0.65rem',
-                      bgcolor: alpha(theme.palette.info.main, 0.1),
-                      color: 'info.dark',
+                      objectFit: 'contain',
+                      p: 2,
+                      bgcolor: alpha(theme.palette.primary.main, 0.04),
                     }}
                   />
-                  <Chip
-                    label={group.category}
-                    size="small"
+                ) : (
+                  <Box
                     sx={{
-                      height: 20,
-                      fontSize: '0.65rem',
-                      bgcolor: alpha(theme.palette.secondary.main, 0.1),
+                      height: 160,
+                      bgcolor: alpha(theme.palette.primary.main, 0.04),
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}
-                  />
-                </Box>
+                  >
+                    <StoreIcon sx={{ fontSize: 48, color: 'text.disabled' }} />
+                  </Box>
+                )}
 
-                {/* Available Stores */}
-                <Box sx={{ display: 'flex', gap: 0.5, mb: 1.5 }}>
-                  {group.availableStores.map((storeId) => (
-                    <Avatar
-                      key={storeId}
+                <CardContent sx={{ flexGrow: 1, pb: 1, display: 'flex', flexDirection: 'column' }}>
+                  {/* Brand Badge */}
+                  {group.brand_name && (
+                    <Chip
+                      label={group.brand_name}
+                      size="small"
+                      variant="outlined"
                       sx={{
-                        width: 24,
-                        height: 24,
+                        mb: 1,
+                        height: 20,
+                        fontSize: '0.7rem',
+                        borderColor: alpha(theme.palette.primary.main, 0.3),
+                      }}
+                    />
+                  )}
+
+                  {/* Product Name */}
+                  <Typography
+                    variant="subtitle1"
+                    component="div"
+                    sx={{
+                      fontWeight: 600,
+                      mb: 0.5,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      lineHeight: 1.3,
+                      minHeight: 34,
+                    }}
+                  >
+                    {group.base_product_name}
+                  </Typography>
+
+                  {/* Variant Count & Category */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1.5, flexWrap: 'wrap' }}>
+                    <Chip
+                      label={`${group.variantCount} sizes`}
+                      size="small"
+                      sx={{
+                        height: 20,
                         fontSize: '0.65rem',
-                        bgcolor: getStoreColor(storeId),
+                        bgcolor: alpha(theme.palette.info.main, 0.1),
+                        color: 'info.dark',
+                      }}
+                    />
+                    <Chip
+                      label={group.category}
+                      size="small"
+                      sx={{
+                        height: 20,
+                        fontSize: '0.65rem',
+                        bgcolor: alpha(theme.palette.secondary.main, 0.1),
+                      }}
+                    />
+                  </Box>
+
+                  {/* Available Stores */}
+                  <Box sx={{ display: 'flex', gap: 0.5, mb: 'auto' }}>
+                    {group.availableStores.map((storeId) => (
+                      <Avatar
+                        key={storeId}
+                        sx={{
+                          width: 24,
+                          height: 24,
+                          fontSize: '0.65rem',
+                          bgcolor: getStoreColor(storeId),
+                        }}
+                      >
+                        {storeId.charAt(0).toUpperCase()}
+                      </Avatar>
+                    ))}
+                  </Box>
+
+                  {/* Expand Button */}
+                  <IconButton
+                    onClick={(e) => {
+                      if (isExpanded) {
+                        setExpandedCard(null);
+                        setAnchorEl(null);
+                      } else {
+                        setExpandedCard(group.base_product_name);
+                        setAnchorEl(e.currentTarget);
+                      }
+                    }}
+                    sx={{
+                      width: '100%',
+                      height: 36,
+                      borderRadius: 1,
+                      bgcolor: alpha(theme.palette.primary.main, 0.05),
+                      '&:hover': {
+                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                      },
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    <Typography variant="button" sx={{ flexGrow: 1, fontSize: '0.85rem' }}>
+                      {isExpanded ? 'Hide' : 'View'} {group.variantCount} variants
+                    </Typography>
+                    {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                  </IconButton>
+                </CardContent>
+              </Card>
+
+              {/* Expanded Variants - Popper */}
+              <Popper
+                open={isExpanded}
+                anchorEl={anchorEl}
+                placement="bottom-start"
+                transition
+                modifiers={[
+                  {
+                    name: 'flip',
+                    enabled: true,
+                    options: {
+                      altBoundary: true,
+                      tether: true,
+                    },
+                  },
+                ]}
+                sx={{
+                  zIndex: 1300,
+                  width: 320,
+                  maxWidth: 'calc(100vw - 32px)',
+                }}
+              >
+                <ClickAwayListener onClickAway={() => { setExpandedCard(null); setAnchorEl(null); }}>
+                  <Paper
+                    elevation={8}
+                    sx={{
+                      mt: 1,
+                      overflow: 'hidden',
+                      borderRadius: 2,
+                      maxHeight: 400,
+                      overflowY: 'auto',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      boxShadow: theme.shadows[8],
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        p: 2,
+                        bgcolor: alpha(theme.palette.primary.main, 0.02),
                       }}
                     >
-                      {storeId.charAt(0).toUpperCase()}
-                    </Avatar>
-                  ))}
-                </Box>
+                      <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>
+                        {group.variantCount} Variants Available
+                      </Typography>
+                      <Stack spacing={1.5}>
+                        {group.products.map((product) => {
+                          const prices = product.prices || [];
+                          const cheapestPrice = prices.length > 0
+                            ? Math.min(...prices.map(p => p.price_cents))
+                            : null;
 
-                {/* Expand Button */}
-                <IconButton
-                  onClick={() => setExpandedCard(isExpanded ? null : group.base_product_name)}
-                  sx={{
-                    width: '100%',
-                    height: 36,
-                    borderRadius: 1,
-                    bgcolor: alpha(theme.palette.primary.main, 0.05),
-                    '&:hover': {
-                      bgcolor: alpha(theme.palette.primary.main, 0.1),
-                    },
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  <Typography variant="button" sx={{ flexGrow: 1, fontSize: '0.85rem' }}>
-                    {isExpanded ? 'Hide' : 'View'} {group.variantCount} variants
-                  </Typography>
-                  {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                </IconButton>
-              </CardContent>
-
-              {/* Expanded Variants */}
-              <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-                <Box
-                  sx={{
-                    p: 2,
-                    pt: 0,
-                    borderTop: 1,
-                    borderColor: 'divider',
-                    bgcolor: alpha(theme.palette.action.hover, 0.3),
-                  }}
-                >
-                  <Stack spacing={1.5}>
-                    {group.products.map((product, idx) => {
-                      const prices = product.prices || [];
-                      const cheapestPrice = prices.length > 0
-                        ? Math.min(...prices.map(p => p.price_cents))
-                        : null;
-
-                      return (
-                        <Box
-                          key={product.id}
-                          sx={{
-                            p: 1.5,
-                            borderRadius: 1,
-                            bgcolor: 'background.paper',
-                            border: '1px solid',
-                            borderColor: 'divider',
-                            transition: 'all 0.2s',
-                            '&:hover': {
-                              borderColor: 'primary.main',
-                              boxShadow: theme.shadows[2],
-                            },
-                          }}
-                        >
-                          {/* Size Badge */}
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-                            <Chip
-                              label={product.size_display || 'N/A'}
-                              size="small"
+                          return (
+                            <Box
+                              key={product.id}
                               sx={{
-                                height: 22,
-                                fontSize: '0.7rem',
-                                fontWeight: 600,
-                                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                p: 1.5,
+                                borderRadius: 1,
+                                bgcolor: 'background.paper',
+                                border: '1px solid',
+                                borderColor: 'divider',
+                                transition: 'all 0.2s',
+                                '&:hover': {
+                                  borderColor: 'primary.main',
+                                  boxShadow: theme.shadows[2],
+                                },
                               }}
-                            />
-                            {cheapestPrice && (
-                              <Typography variant="body2" fontWeight="bold" color="success.main">
-                                {formatPrice(cheapestPrice)}
-                              </Typography>
-                            )}
-                          </Box>
-
-                          {/* Store Prices */}
-                          <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-                            {prices.map((price) => {
-                              const isCheapest = price.price_cents === cheapestPrice;
-                              return (
-                                <Box
-                                  key={`${product.id}-${price.store_id}`}
+                            >
+                              {/* Size Badge */}
+                              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                                <Chip
+                                  label={product.size_display || 'N/A'}
+                                  size="small"
                                   sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 0.5,
-                                    px: 1,
-                                    py: 0.5,
-                                    borderRadius: 1,
-                                    bgcolor: isCheapest
-                                      ? alpha(theme.palette.success.main, 0.1)
-                                      : alpha(theme.palette.action.hover, 0.5),
-                                    border: isCheapest ? 1 : 0,
-                                    borderColor: isCheapest ? 'success.main' : 'transparent',
+                                    height: 22,
+                                    fontSize: '0.7rem',
+                                    fontWeight: 600,
+                                    bgcolor: alpha(theme.palette.primary.main, 0.1),
                                   }}
-                                >
-                                  {isCheapest && <StarIcon sx={{ fontSize: 12, color: 'success.main' }} />}
-                                  <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 500 }}>
-                                    {getStoreDisplayName(price.store_id)}
+                                />
+                                {cheapestPrice && (
+                                  <Typography variant="body2" fontWeight="bold" color="success.main">
+                                    {formatPrice(cheapestPrice)}
                                   </Typography>
-                                  <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: isCheapest ? 700 : 600 }}>
-                                    {formatPrice(price.price_cents)}
-                                  </Typography>
-                                </Box>
-                              );
-                            })}
-                          </Stack>
+                                )}
+                              </Box>
 
-                          {/* Product Name (smaller) */}
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              fontSize: '0.65rem',
-                              color: 'text.secondary',
-                              mt: 0.5,
-                              display: 'block',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            {product.name}
-                          </Typography>
-                        </Box>
-                      );
-                    })}
-                  </Stack>
-                </Box>
-              </Collapse>
-            </Card>
+                              {/* Store Prices */}
+                              <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+                                {prices.map((price) => {
+                                  const isCheapest = price.price_cents === cheapestPrice;
+                                  return (
+                                    <Box
+                                      key={`${product.id}-${price.store_id}`}
+                                      sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 0.5,
+                                        px: 1,
+                                        py: 0.5,
+                                        borderRadius: 1,
+                                        bgcolor: isCheapest
+                                          ? alpha(theme.palette.success.main, 0.1)
+                                          : alpha(theme.palette.action.hover, 0.5),
+                                        border: isCheapest ? 1 : 0,
+                                        borderColor: isCheapest ? 'success.main' : 'transparent',
+                                      }}
+                                    >
+                                      {isCheapest && <StarIcon sx={{ fontSize: 12, color: 'success.main' }} />}
+                                      <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 500 }}>
+                                        {getStoreDisplayName(price.store_id)}
+                                      </Typography>
+                                      <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: isCheapest ? 700 : 600 }}>
+                                        {formatPrice(price.price_cents)}
+                                      </Typography>
+                                    </Box>
+                                  );
+                                })}
+                              </Stack>
+
+                              {/* Product Name (smaller) */}
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  fontSize: '0.65rem',
+                                  color: 'text.secondary',
+                                  mt: 0.5,
+                                  display: 'block',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                }}
+                              >
+                                {product.name}
+                              </Typography>
+                            </Box>
+                          );
+                        })}
+                      </Stack>
+                    </Box>
+                  </Paper>
+                </ClickAwayListener>
+              </Popper>
+            </Box>
           </Grid>
         );
       })}
