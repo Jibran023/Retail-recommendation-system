@@ -128,7 +128,11 @@ export async function searchProducts(query: string): Promise<Product[]> {
     return {
       id: product.id,
       name: product.name,
+      base_product_name: product.base_product_name,
       category: product.category,
+      size_display: product.size_display,
+      brand_name: product.brand_name,
+      image_url: product.image_url,
       prices: productPrices,
     };
   });
@@ -217,7 +221,11 @@ export async function getProductsByCategory(category: string): Promise<Product[]
       return {
         id: product.id,
         name: product.name,
+        base_product_name: product.base_product_name,
         category: product.category,
+        size_display: product.size_display,
+        brand_name: product.brand_name,
+        image_url: product.image_url,
         prices: productPrices,
       };
     });
@@ -319,7 +327,11 @@ export async function getAllProducts(): Promise<Product[]> {
     return {
       id: product.id,
       name: product.name,
+      base_product_name: product.base_product_name,
       category: product.category,
+      size_display: product.size_display,
+      brand_name: product.brand_name,
+      image_url: product.image_url,
       prices: productPrices,
     };
   });
