@@ -4,7 +4,7 @@
  * Beautiful header for category browsing with stats and info
  */
 
-import { Box, Typography, Chip, Stack, useTheme, alpha } from '@mui/material';
+import { Box, Typography, Stack, useTheme, alpha } from '@mui/material';
 import {
   LocalOffer as LocalOfferIcon,
   Store as StoreIcon,

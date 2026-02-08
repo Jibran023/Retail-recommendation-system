@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '../services/supabaseClient';
-import { Box, Typography, Grid, Card, CardContent, Chip, Stack } from '@mui/material';
+import { Box, Typography, Card, CardContent, Chip, Stack, Grid } from '@mui/material';
 
 interface Product {
   id: string;
@@ -128,7 +128,7 @@ export function ProductGroup({ baseProductName, category, maxSize }: ProductGrou
       {/* Variants Grid */}
       <Grid container spacing={2}>
         {variants.map((variant) => (
-          <Grid item xs={12} sm={6} md={4} key={variant.id}>
+          <Grid key={variant.id} size={{ xs: 12, sm: 6, md: 4 }}>
             <Card>
               <CardContent>
                 {/* Size Badge */}
@@ -210,7 +210,7 @@ export function ProductGroupList({ category, limit = 20 }: ProductGroupListProps
       } else if (data) {
         // Count occurrences of each base product
         const counts: Record<string, number> = {};
-        data.forEach(item => {
+        data.forEach((item: { base_product_name: string }) => {
           const name = item.base_product_name;
           counts[name] = (counts[name] || 0) + 1;
         });

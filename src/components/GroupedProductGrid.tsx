@@ -188,7 +188,7 @@ export function GroupedProductGrid({ category, searchQuery, limit = 50 }: Groupe
     return (
       <Grid container spacing={2.5}>
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={i}>
+          <Grid key={i} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
             <Card>
               <Skeleton variant="rectangular" height={140} />
               <CardContent>
@@ -218,7 +218,7 @@ export function GroupedProductGrid({ category, searchQuery, limit = 50 }: Groupe
         const isExpanded = expandedCard === group.base_product_name;
 
         return (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={group.base_product_name}>
+          <Grid key={group.base_product_name} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
             <Box
               sx={{
                 position: 'relative',

@@ -18,7 +18,7 @@ export function TestComponent() {
           { name: 'MOUNTAIN DEW', variants: 6, sizes: '250ml, 500ml, 1L, 1.5L' },
           { name: 'VITAL TEA', variants: 12, sizes: '85g, 170g, 430g, 900g' },
         ].map((product) => (
-          <Grid item xs={12} sm={6} md={4} key={product.name}>
+          <Grid key={product.name} size={{ xs: 12, sm: 6, md: 4 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6">{product.name}</Typography>

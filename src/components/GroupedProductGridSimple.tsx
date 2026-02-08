@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Box, Typography, Card, CardContent, Grid, Chip, Skeleton, Alert } from '@mui/material';
+import { Box, Typography, Card, CardContent, Chip, Skeleton, Alert, Grid } from '@mui/material';
 import { supabase } from '../services/supabaseClient';
 
 export function GroupedProductGridSimple({ category }: { category?: string }) {
@@ -67,7 +67,7 @@ export function GroupedProductGridSimple({ category }: { category?: string }) {
         <Typography>Loading...</Typography>
         <Grid container spacing={2}>
           {[1, 2, 3, 4].map((i) => (
-            <Grid item xs={12} sm={6} md={4} key={i}>
+            <Grid key={i} size={{ xs: 12, sm: 6, md: 4 }}>
               <Skeleton variant="rectangular" height={200} />
             </Grid>
           ))}
@@ -88,7 +88,7 @@ export function GroupedProductGridSimple({ category }: { category?: string }) {
 
       <Grid container spacing={2}>
         {groups.map((group) => (
-          <Grid item xs={12} sm={6} md={4} key={group.base_product_name}>
+          <Grid key={group.base_product_name} size={{ xs: 12, sm: 6, md: 4 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6">{group.base_product_name}</Typography>
