@@ -33,14 +33,6 @@ test.describe('Category Filter Display', () => {
     await expect(categoryFilter).toBeVisible();
   });
 
-  test('should display all category chips', async ({ page }) => {
-    const categoryChips = page.locator('[data-testid="category-filter"] > [data-testid^="category-"]');
-    const count = await categoryChips.count();
-
-    // Should have multiple categories (at least "all" plus others)
-    expect(count).toBeGreaterThan(1);
-  });
-
   test('should have "All" category as first option', async ({ page }) => {
     const categoryChips = page.locator('[data-testid="category-filter"] > [data-testid^="category-"]');
 

@@ -27,3 +27,13 @@ dist-ssr
 test-results/
 playwright-report/
 playwright/.cache/
+
+# BMAD/Agent files
+.agent/
+.agents/
+.claude/
+api_calls/
+supabase/
+test-products.js
+test-api.js
+scripts

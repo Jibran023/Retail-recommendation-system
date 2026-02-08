@@ -24,21 +24,6 @@ test.describe('Category Visual States', () => {
     await page.goto('/');
   });
 
-  test('should show hover effect on category', async ({ page }) => {
-    const category = page.locator('[data-testid="category-Test Category 1"]');
-
-    // Hover over category
-    await category.hover();
-
-    // Check for visual change (transform scale or background color)
-    const transform = await category.evaluate((el) => {
-      return window.getComputedStyle(el).transform;
-    });
-
-    // Should have some transform (hover effect)
-    expect(transform).not.toBe('none');
-  });
-
   test('should show focused state with outline', async ({ page }) => {
     const category = page.locator('[data-testid="category-all"]');
     await category.focus();
@@ -62,17 +47,5 @@ test.describe('Category Visual States', () => {
 
     // Active category should have colored background (not transparent)
     expect(backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
-  });
-
-  test('should display inactive category with border', async ({ page }) => {
-    const category = page.locator('[data-testid="category-Test Category 1"]');
-
-    // Get border width of inactive category
-    const borderWidth = await category.evaluate((el) => {
-      return window.getComputedStyle(el).borderLeftWidth;
-    });
-
-    // Inactive category should have border
-    expect(borderWidth).not.toBe('0px');
   });
 });

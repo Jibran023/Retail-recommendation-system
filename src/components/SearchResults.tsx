@@ -60,6 +60,9 @@ export function SearchResults() {
           };
         });
 
+        // Filter out prices that are Rs.0 (invalid price data)
+        filteredPrices = filteredPrices.filter((p: ProductPrice) => p.price > 0);
+
         // Filter prices by selected stores first
         if (selectedStores.length > 0) {
           filteredPrices = filteredPrices.filter((p: ProductPrice) =>

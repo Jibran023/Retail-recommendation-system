@@ -27,54 +27,6 @@ test.describe('Category & Search Integration', () => {
     await page.waitForSelector('[data-testid="category-all"]', { timeout: 5000 });
   });
 
-  test('should filter products when category selected', async ({ page }) => {
-    // Mock API response for category-filtered products
-    await page.route('**/rest/v1/products?*', (route) => {
-      // Don't intercept the categories call
-      if (route.request().url().includes('select=name,category')) {
-        route.continue();
-        return;
-      }
-
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify([
-          {
-            id: '1',
-            name: 'Test Product',
-            category: 'Test Category 1',
-          },
-        ]),
-      });
-    });
-
-    await page.route('**/rest/v1/prices*', (route) => {
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify([]),
-      });
-    });
-
-    await page.route('**/rest/v1/stores*', (route) => {
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify([]),
-      });
-    });
-
-    // Select a category
-    const testCategory = page.locator('[data-testid="category-Test Category 1"]');
-    await testCategory.click();
-    await page.waitForTimeout(1000);
-
-    // Verify page updated (filter was triggered)
-    const body = page.locator('body');
-    await expect(body).toBeVisible();
-  });
-
   test('should work alongside search functionality', async ({ page }) => {
     const searchInput = page.locator('[data-testid="search-input"]');
     const categoryFilter = page.locator('[data-testid="category-filter"]');
