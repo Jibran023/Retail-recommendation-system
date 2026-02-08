@@ -4,7 +4,7 @@ import type { AppError } from './Error.types';
 /**
  * Sort options for product results
  */
-export type SortOption = 'default' | 'price-asc' | 'price-desc';
+export type SortOption = 'default' | 'price-asc' | 'price-desc' | 'distance-asc';
 
 /**
  * Search state types

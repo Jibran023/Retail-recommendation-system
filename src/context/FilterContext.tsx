@@ -64,7 +64,7 @@ function filterReducer(state: FilterState, action: FilterAction): FilterState {
       return { ...state, priceRange: action.payload };
 
     case 'CLEAR_ALL_FILTERS':
-      return { ...initialFilterState, priceRange: state.priceRange }; // Keep price range
+      return { ...initialFilterState };
 
     default:
       return state;

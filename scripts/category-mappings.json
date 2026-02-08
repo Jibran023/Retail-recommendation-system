@@ -1,0 +1,114 @@
+{
+  "categoryMapping": {
+    "binHashim": {
+      "grocery_products_mapping": {
+        "description": "Maps products from Bin Hashim's generic 'Grocery Products' category to specific categories",
+        "mappings": {
+          "Tea & Coffee": [
+            "tea", "coffee", "nescafe", "tapal", "mezan", "almarwah", "dawn", "indocafe",
+            "klassno", "supreme", "green tea", "elaichi", "chai", "mixture", "danedar"
+          ],
+          "Cooking Oil & Ghee": [
+            "olive oil", "cooking oil", "banaspati", "ghee", "oil", "dalda", "italia",
+            "mundial", "sasso", "borges", "mueloliva", "pomace"
+          ],
+          "Rice & Grains": [
+            "atta", "chakki", "maida", "flour", "corn flour", "rice", "daal", "basan",
+            "vermicelli", "macaroni", "spaghetti", "noodles", "pasta", "grain", "lentils",
+            "beans", "pulses", "wheat"
+          ],
+          "Beverages": [
+            "squash", "syrup", "roohafza", "jam e shirin", "sharbat", "ice cream soda",
+            "drink", "juice", "beverage", "soft drink", "soda", "water", "shake"
+          ],
+          "Snacks & Confectionary": [
+            "biscuit", "cookie", "chocolate", "candy", "chips", "snack", "wafer",
+            "confectionary", "sweets", "dessert", "pudding", "honey", "spread"
+          ],
+          "Dairy & Eggs": [
+            "custard", "jelly", "kheer", "dessert mix", "pudding mix", "falooda",
+            "milk", "cream", "butter", "cheese", "yogurt", "dairy"
+          ],
+          "Spices & Masalas": [
+            "masala", "spice", "chili", "mirch", "turmeric", "cumin", "coriander",
+            "pepper", "salt", "sugar", "ginger", "garlic", "onion", "vinegar", "sauce"
+          ]
+        }
+      },
+      "direct_category_mappings": {
+        "Sweets & Confectionary": "Snacks & Confectionary",
+        "Grocery Products": null, // Will be mapped by keyword analysis
+        "Pharmacy & Nutritions": null, // Not in scope
+        "Laundry & Household Needs": null, // Not in scope
+        "Health & Beauty": null, // Not in scope
+        "Infants & Baby Care": null, // Not in scope
+        "Kitchenware & Home Decor": null, // Not in scope
+        "Electronic & Home Appliances": null, // Not in scope
+        "Women's Fashion": null, // Not in scope
+        "Luggage Bags": null, // Not in scope
+        "Grilling & Barbecue": null, // Not in scope
+        "Computer & Mobile Accessories": null, // Not in scope
+        "WALL'S": null, // Ice cream - not in scope
+        "RASHAN HAMPERS 2026": null // Special bundles - not in scope
+      }
+    },
+    "imtiaz": {
+      "categories": [
+        "Tea & Coffee",
+        "Beverages",
+        "Snacks & Confectionary",
+        "Cooking Oil & Ghee",
+        "Rice & Grains",
+        "Dairy & Eggs",
+        "Spices & Masalas"
+      ]
+    }
+  },
+  "overlappingCategories": {
+    "description": "Categories that exist in both stores",
+    "categories": [
+      {
+        "name": "Tea & Coffee",
+        "imtiaz": "Tea & Coffee",
+        "binHashim": "Tea & Coffee (from Grocery Products)",
+        "status": "DIRECT_MATCH"
+      },
+      {
+        "name": "Snacks & Confectionary",
+        "imtiaz": "Snacks & Confectionary",
+        "binHashim": "Sweets & Confectionary",
+        "status": "SIMILAR_NAME"
+      }
+    ]
+  },
+  "hiddenOverlaps": {
+    "description": "Products in Bin Hashim's 'Grocery Products' that map to Imtiaz's specific categories",
+    "categories": [
+      {
+        "imtiazCategory": "Cooking Oil & Ghee",
+        "binHashimProducts": ["olive oil", "cooking oil"],
+        "source": "Grocery Products"
+      },
+      {
+        "imtiazCategory": "Rice & Grains",
+        "binHashimProducts": ["atta", "maida", "daal", "basan", "vermicelli", "noodles", "pasta"],
+        "source": "Grocery Products"
+      },
+      {
+        "imtiazCategory": "Beverages",
+        "binHashimProducts": ["squash", "syrup", "roohafza", "sharbat"],
+        "source": "Grocery Products"
+      },
+      {
+        "imtiazCategory": "Dairy & Eggs",
+        "binHashimProducts": ["custard", "jelly", "kheer", "dessert mix"],
+        "source": "Grocery Products"
+      },
+      {
+        "imtiazCategory": "Spices & Masalas",
+        "binHashimProducts": ["sauce", "vinegar", "spreads"],
+        "source": "Grocery Products"
+      }
+    ]
+  }
+}

@@ -12,7 +12,14 @@
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug",
     "test:headed": "playwright test --headed",
-    "test:report": "playwright show-report"
+    "test:report": "playwright show-report",
+    "fetch-data": "tsx scripts/fetch-store-data.mjs",
+    "fetch-data:imtiaz": "tsx scripts/fetch-store-data.mjs imtiaz",
+    "fetch-data:all": "tsx scripts/fetch-store-data.mjs --limit=10",
+    "fetch-data:binhashim": "tsx scripts/fetch-binhashim-targeted.mjs",
+    "normalize-products": "node scripts/normalize-products.mjs",
+    "update-normalization": "node scripts/update-product-normalization.mjs",
+    "verify-normalization": "node scripts/verify-normalization.mjs"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -20,6 +27,8 @@
     "@fontsource/roboto": "^5.2.9",
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
+    "@supabase/supabase-js": "^2.95.3",
+    "dotenv": "^17.2.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
@@ -34,6 +43,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "tsx": "^4.21.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4"

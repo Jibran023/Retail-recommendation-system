@@ -8,6 +8,7 @@ import type { SortOption } from '../types/Search.types';
  *
  * Features:
  * - Sort by price (low to high, high to low)
+ * - Sort by distance (near to far)
  * - Default/relevance sorting
  * - Visual indicator for active sort
  * - Keyboard navigation support
@@ -25,6 +26,7 @@ export function SortControl() {
     { value: 'default', label: 'Default' },
     { value: 'price-asc', label: 'Price: Low to High' },
     { value: 'price-desc', label: 'Price: High to Low' },
+    { value: 'distance-asc', label: 'Distance: Near to Far' },
   ];
 
   return (

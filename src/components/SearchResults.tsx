@@ -1,13 +1,18 @@
-import { useMemo } from 'react';
-import { Box, Typography, Chip, Alert, AlertTitle, Skeleton, Button, Card, CardContent, useTheme, useMediaQuery } from '@mui/material';
-import { CheckCircle, Cancel, Schedule, Star } from '@mui/icons-material';
+import { useMemo, useState } from 'react';
+import { Box, Typography, Chip, Alert, AlertTitle, Skeleton, Button, Card, CardContent, useTheme, useMediaQuery, ToggleButton, ToggleButtonGroup, Toolbar } from '@mui/material';
+import { CheckCircle, Cancel, Schedule, Star, Place, ViewList, ViewModule } from '@mui/icons-material';
 import { useSearch } from '../hooks/useSearch';
 import { useCategoryFilter } from '../hooks/useCategoryFilter';
 import { useFilter } from '../hooks/useFilter';
 import { getCategoryName } from '../services/mockCategories';
+import { getStoreInfo, formatDistance, DEFAULT_USER_LOCATION } from '../constants/stores';
+import { calculateDistance } from '../utils/distance';
 import type { ProductPrice, Product } from '../types/Product.types';
 import { SortControl } from './SortControl';
 import { FilterPanel } from './FilterPanel';
+import { StoreLinkButton } from './StoreLinkButton';
+import { StoreModal } from './StoreModal';
+import { GroupedProductsView } from './GroupedProductsView';
 
 /**
  * Formats price from cents to currency display
@@ -38,13 +43,17 @@ function formatRelativeTime(isoDate: string): string {
 /**
  * PriceComparisonCard displays a single store's price with all details
  * Shows best value badge if this is the cheapest price
+ * Shows nearest badge if this is the closest store
+ * Includes click-through button to store website
  */
 interface PriceComparisonCardProps {
   price: ProductPrice;
   isBestValue: boolean;
+  isNearest: boolean;
+  productName: string;
 }
 
-function PriceComparisonCard({ price, isBestValue }: PriceComparisonCardProps) {
+function PriceComparisonCard({ price, isBestValue, isNearest, productName }: PriceComparisonCardProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -54,13 +63,13 @@ function PriceComparisonCard({ price, isBestValue }: PriceComparisonCardProps) {
       sx={{
         height: '100%',
         position: 'relative',
-        border: isBestValue ? `2px solid ${theme.palette.success.main}` : 1,
-        borderColor: isBestValue ? 'success.main' : 'divider',
-        bgcolor: isBestValue ? 'success.50' : 'background.paper',
+        border: isBestValue ? `2px solid ${theme.palette.success.main}` : isNearest ? `2px solid ${theme.palette.info.main}` : 1,
+        borderColor: isBestValue ? 'success.main' : isNearest ? 'info.main' : 'divider',
+        bgcolor: isBestValue ? 'success.50' : isNearest ? 'info.50' : 'background.paper',
         transition: 'all 0.2s ease-in-out',
         '&:hover': {
           boxShadow: 2,
-          transform: isBestValue ? 'scale(1.02)' : 'none',
+          transform: isBestValue || isNearest ? 'scale(1.02)' : 'none',
         },
       }}
     >
@@ -72,23 +81,49 @@ function PriceComparisonCard({ price, isBestValue }: PriceComparisonCardProps) {
           size="small"
           sx={{
             position: 'absolute',
+            top: isNearest ? 8 + 28 : 8, // Offset if both badges
+            right: 8,
+            fontWeight: 'bold',
+          }}
+        />
+      )}
+      {isNearest && (
+        <Chip
+          icon={<Place sx={{ fontSize: 16 }} />}
+          label="Nearest"
+          color="info"
+          size="small"
+          sx={{
+            position: 'absolute',
             top: 8,
             right: 8,
             fontWeight: 'bold',
           }}
         />
       )}
-      <CardContent sx={{ pt: isBestValue ? 4 : 2 }}>
+      <CardContent sx={{ pt: isBestValue || isNearest ? 4 : 2 }}>
         <Box sx={{ mb: 2 }}>
-          <Typography
-            variant={isMobile ? 'body1' : 'h6'}
-            component="div"
-            fontWeight={isBestValue ? 'bold' : 'medium'}
-            color="text.primary"
-            gutterBottom
-          >
-            {price.storeName}
-          </Typography>
+          <StoreModal
+            price={price}
+            trigger={
+              <Typography
+                variant={isMobile ? 'body1' : 'h6'}
+                component="div"
+                fontWeight={isBestValue ? 'bold' : 'medium'}
+                color="text.primary"
+                gutterBottom
+                sx={{
+                  '&:hover': {
+                    color: 'primary.main',
+                    textDecoration: 'underline',
+                    cursor: 'pointer',
+                  },
+                }}
+              >
+                {price.storeName}
+              </Typography>
+            }
+          />
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
@@ -123,7 +158,19 @@ function PriceComparisonCard({ price, isBestValue }: PriceComparisonCardProps) {
               {formatRelativeTime(price.lastUpdated)}
             </Typography>
           </Box>
+
+          {price.distance !== undefined && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Place sx={{ fontSize: 16, color: isNearest ? 'info.main' : 'text.secondary' }} />
+              <Typography variant="body2" color={isNearest ? 'info.main' : 'text.secondary'} fontWeight={isNearest ? 'bold' : 'normal'}>
+                {formatDistance(price.distance)} away
+              </Typography>
+            </Box>
+          )}
         </Box>
+
+        {/* Store link button */}
+        <StoreLinkButton price={price} productName={productName} />
       </CardContent>
     </Card>
   );
@@ -149,23 +196,36 @@ export function SearchResults() {
   const { clearCategory } = useCategoryFilter();
   const { results, loading, error, resultsCount, query, selectedCategory, sortBy } = state;
   const { state: filterState, clearAllFilters } = useFilter();
-  const { inStockOnly, selectedStores } = filterState;
+  const { inStockOnly, selectedStores, priceRange } = filterState;
 
-  // Apply filters to results
+  // View toggle state: 'list' or 'grouped'
+  const [viewMode, setViewMode] = useState<'list' | 'grouped'>('list');
+
+  // Apply filters to results and calculate distances
   const filteredResults = useMemo(() => {
     // Debug logging (can be removed in production)
-    if (inStockOnly || selectedStores.length > 0) {
+    if (inStockOnly || selectedStores.length > 0 || priceRange) {
       console.log('Filtering results:', {
         inStockOnly,
         selectedStores,
+        priceRange,
         resultsCount: results.length,
       });
     }
 
     return results
       .map((product: Product): Product => {
-        // Start with all prices
-        let filteredPrices = product.prices;
+        // Start with all prices and calculate distances
+        let filteredPrices = product.prices.map((price: ProductPrice): ProductPrice => {
+          const storeInfo = getStoreInfo(price.storeName);
+          const distance = storeInfo
+            ? calculateDistance(DEFAULT_USER_LOCATION, { latitude: storeInfo.latitude, longitude: storeInfo.longitude })
+            : undefined;
+          return {
+            ...price,
+            distance,
+          };
+        });
 
         // Filter prices by selected stores first
         if (selectedStores.length > 0) {
@@ -186,6 +246,17 @@ export function SearchResults() {
           });
         }
 
+        // Filter by price range (filter prices within the range)
+        if (priceRange) {
+          filteredPrices = filteredPrices.filter((p: ProductPrice) => {
+            const withinRange = p.price >= priceRange.min && p.price <= priceRange.max;
+            if (!withinRange) {
+              console.log(`Filtering price for ${product.name} at ${p.storeName}: ${p.price} not in range [${priceRange.min}, ${priceRange.max}]`);
+            }
+            return withinRange;
+          });
+        }
+
         // Return the product with filtered prices
         return {
           ...product,
@@ -195,12 +266,12 @@ export function SearchResults() {
       .filter((product: Product) => {
         // Filter out products that have no prices after filtering
         const hasPrices = product.prices.length > 0;
-        if (!hasPrices && (inStockOnly || selectedStores.length > 0)) {
+        if (!hasPrices && (inStockOnly || selectedStores.length > 0 || priceRange)) {
           console.log(`Filtering out product ${product.name} - no matching prices`);
         }
         return hasPrices;
       });
-  }, [results, inStockOnly, selectedStores]);
+  }, [results, inStockOnly, selectedStores, priceRange]);
 
   // Sort filtered results based on sort option
   const sortedResults = useMemo(() => {
@@ -209,34 +280,53 @@ export function SearchResults() {
     }
 
     // Sort products AND sort prices within each product
-    const sorted = [...filteredResults].map((product: Product): Product & { cheapestPrice: number } => {
+    const sorted = [...filteredResults].map((product: Product): Product & { cheapestPrice?: number; nearestDistance?: number } => {
       // Sort prices within the product based on sort option
       let sortedPrices = [...product.prices];
       if (sortBy === 'price-asc') {
         sortedPrices.sort((a, b) => a.price - b.price);
       } else if (sortBy === 'price-desc') {
         sortedPrices.sort((a, b) => b.price - a.price);
+      } else if (sortBy === 'distance-asc') {
+        sortedPrices.sort((a, b) => {
+          // Sort by distance, putting undefined distances at the end
+          if (a.distance === undefined && b.distance === undefined) return 0;
+          if (a.distance === undefined) return 1;
+          if (b.distance === undefined) return -1;
+          return a.distance - b.distance;
+        });
       }
 
-      // Calculate cheapest price for product sorting
-      const cheapestPrice = sortedPrices.length > 0
+      // Calculate cheapest price for product sorting (price-based sort)
+      const cheapestPrice = sortedPrices.length > 0 && sortedPrices[0].price !== undefined
         ? Math.min(...sortedPrices.map((p: ProductPrice) => p.price))
-        : Infinity;
+        : undefined;
+
+      // Calculate nearest distance for product sorting (distance-based sort)
+      const nearestDistance = sortedPrices.length > 0 && sortedPrices[0].distance !== undefined
+        ? Math.min(...sortedPrices.map((p: ProductPrice) => p.distance ?? Infinity))
+        : undefined;
 
       return {
         ...product,
         prices: sortedPrices,
         cheapestPrice,
+        nearestDistance,
       };
     });
 
     // Sort products by their cheapest price
     if (sortBy === 'price-asc') {
-      return sorted.sort((a, b) => a.cheapestPrice - b.cheapestPrice);
+      return sorted.sort((a, b) => (a.cheapestPrice ?? Infinity) - (b.cheapestPrice ?? Infinity));
     }
 
     if (sortBy === 'price-desc') {
-      return sorted.sort((a, b) => b.cheapestPrice - a.cheapestPrice);
+      return sorted.sort((a, b) => (b.cheapestPrice ?? 0) - (a.cheapestPrice ?? 0));
+    }
+
+    // Sort products by their nearest distance
+    if (sortBy === 'distance-asc') {
+      return sorted.sort((a, b) => (a.nearestDistance ?? Infinity) - (b.nearestDistance ?? Infinity));
     }
 
     return sorted;
@@ -312,7 +402,7 @@ export function SearchResults() {
 
   // Check if filters removed all results
   const hasResults = sortedResults.length > 0;
-  const hasActiveFilters = inStockOnly || selectedStores.length > 0;
+  const hasActiveFilters = inStockOnly || selectedStores.length > 0 || priceRange !== undefined;
   return (
     <Box data-testid="search-results" sx={{ maxWidth: 1200, mx: 'auto', my: 2 }}>
       {/* Filter panel - show when there are search results (even if filtered out) */}
@@ -376,8 +466,45 @@ export function SearchResults() {
         </Box>
       )}
 
-      {/* Sort control - only show when there are results */}
-      {sortedResults.length > 0 && <SortControl />}
+      {/* View Toggle & Sort control - only show when there are results */}
+      {sortedResults.length > 0 && (
+        <Toolbar
+          sx={{
+            pl: 0,
+            mb: 2,
+            display: 'flex',
+            justifyContent: 'space-between',
+            width: '100%',
+          }}
+        >
+          {/* View Mode Toggle */}
+          <ToggleButtonGroup
+            value={viewMode}
+            exclusive
+            onChange={(_, newViewMode) => {
+              if (newViewMode) setViewMode(newViewMode as 'list' | 'grouped');
+            }}
+            size="small"
+            sx={{ mr: 2 }}
+          >
+            <ToggleButton value="list" aria-label="list view">
+              <ViewList fontSize="small" />
+              <Typography variant="caption" sx={{ ml: 0.5 }}>
+                List
+              </Typography>
+            </ToggleButton>
+            <ToggleButton value="grouped" aria-label="grouped view">
+              <ViewModule fontSize="small" />
+              <Typography variant="caption" sx={{ ml: 0.5 }}>
+                Grouped
+              </Typography>
+            </ToggleButton>
+          </ToggleButtonGroup>
+
+          {/* Sort Control */}
+          <SortControl />
+        </Toolbar>
+      )}
 
       {/* Results count */}
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
@@ -387,16 +514,33 @@ export function SearchResults() {
         Found {resultsCount} product{resultsCount !== 1 ? 's' : ''}
         {query && ` for "${query}"`}
         {selectedCategory && selectedCategory !== 'all' && ` in ${getCategoryName(selectedCategory)}`}
-        {sortBy !== 'default' && ` · Sorted by ${sortBy === 'price-asc' ? 'Price: Low to High' : 'Price: High to Low'}`}
-        {(inStockOnly || selectedStores.length > 0) && ' · Filtered'}
+        {sortBy !== 'default' && ` · Sorted by ${
+          sortBy === 'price-asc' ? 'Price: Low to High' :
+          sortBy === 'price-desc' ? 'Price: High to Low' :
+          sortBy === 'distance-asc' ? 'Distance: Near to Far' :
+          'Default'
+        }`}
+        {(inStockOnly || selectedStores.length > 0 || priceRange) && ' · Filtered'}
+        {viewMode === 'grouped' && ` · ${viewMode === 'grouped' ? 'Grouped' : 'List'} View`}
       </Typography>
 
-      {/* Product list with price comparison cards */}
-      {sortedResults.map((product) => {
+      {/* Show grouped view or list view based on toggle */}
+      {viewMode === 'grouped' ? (
+        <GroupedProductsView products={sortedResults} />
+      ) : (
+        <>
+          {/* Product list with price comparison cards */}
+          {sortedResults.map((product) => {
         // Find cheapest price for best value badge
         const availablePrices = product.prices.filter(p => p.available);
         const cheapestPrice = availablePrices.length > 0
           ? availablePrices.reduce((min, p) => p.price < min.price ? p : min)
+          : null;
+
+        // Find nearest price for nearest badge
+        const pricesWithDistance = product.prices.filter(p => p.distance !== undefined);
+        const nearestPrice = pricesWithDistance.length > 0
+          ? pricesWithDistance.reduce((min, p) => (p.distance ?? Infinity) < (min.distance ?? Infinity) ? p : min)
           : null;
 
         return (
@@ -451,6 +595,8 @@ export function SearchResults() {
                   <PriceComparisonCard
                     price={price}
                     isBestValue={cheapestPrice?.storeId === price.storeId && price.available}
+                    isNearest={nearestPrice?.storeId === price.storeId && price.distance !== undefined}
+                    productName={product.name}
                   />
                 </Box>
               ))}
@@ -458,6 +604,8 @@ export function SearchResults() {
           </Box>
         );
       })}
+      </>
+    )}
     </Box>
   );
 }
