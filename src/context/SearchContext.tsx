@@ -146,14 +146,39 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     // Clear the search query when filtering by category to avoid confusion
     dispatch({ type: 'CLEAR_SEARCH' });
 
-    // Set the category
-    dispatch({ type: 'FILTER_BY_CATEGORY', payload: categoryId });
-
     if (!categoryId || categoryId === 'all') {
-      // Clear filter if no category selected
-      dispatch({ type: 'CLEAR_CATEGORY_FILTER' });
+      // Fetch all products when "All Categories" is selected
+      dispatch({ type: 'FILTER_BY_CATEGORY', payload: 'all' });
+
+      try {
+        const { getAllProducts: fetchAllProducts } = await import('../services/apiClient');
+        const response = await fetchAllProducts();
+
+        if (response.success) {
+          dispatch({
+            type: 'SEARCH_SUCCESS',
+            payload: {
+              results: response.data,
+              count: response.data.length,
+            },
+          });
+        } else {
+          const errorResponse = response as ApiErrorResponse;
+          dispatch({ type: 'SEARCH_ERROR', payload: errorResponse.error });
+        }
+      } catch (error) {
+        const appError: AppError = {
+          code: 'ALL_PRODUCTS_FETCH_FAILED',
+          message: 'Failed to load all products. Please try again.',
+          details: error,
+        };
+        dispatch({ type: 'SEARCH_ERROR', payload: appError });
+      }
       return;
     }
+
+    // Set the category and loading state
+    dispatch({ type: 'FILTER_BY_CATEGORY', payload: categoryId });
 
     try {
       // Get products by category from Supabase

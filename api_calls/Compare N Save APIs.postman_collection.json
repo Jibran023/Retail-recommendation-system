@@ -1,0 +1,609 @@
+
+{
+  "info": {
+    "_postman_id": "7bd092a7-0126-4c63-ae9c-f5b072c29232",
+    "name": "Compare N Save APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "18983165",
+    "_collection_link": "https://go.postman.co/collection/18983165-7bd092a7-0126-4c63-ae9c-f5b072c29232?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Imtiaz",
+      "item": [
+        {
+          "name": "Menu Section",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "App-name",
+                "value": "imtiazsuperstore",
+                "type": "text"
+              },
+              {
+                "key": "Rest-Id",
+                "value": "55126",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://shop.imtiaz.com.pk/api/menu-section?restId=55126&rest_brId=54940&delivery_type=0&source=google",
+              "protocol": "https",
+              "host": [
+                "shop",
+                "imtiaz",
+                "com",
+                "pk"
+              ],
+              "path": [
+                "api",
+                "menu-section"
+              ],
+              "query": [
+                {
+                  "key": "restId",
+                  "value": "55126"
+                },
+                {
+                  "key": "rest_brId",
+                  "value": "54940"
+                },
+                {
+                  "key": "delivery_type",
+                  "value": "0"
+                },
+                {
+                  "key": "source",
+                  "value": "google"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Sub Section",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "App-name",
+                "value": "imtiazsuperstore",
+                "type": "text"
+              },
+              {
+                "key": "Rest-Id",
+                "value": "55126",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://shop.imtiaz.com.pk/api/sub-section?restId=55126&rest_brId=54940&sectionId=40587&delivery_type=0&source=",
+              "protocol": "https",
+              "host": [
+                "shop",
+                "imtiaz",
+                "com",
+                "pk"
+              ],
+              "path": [
+                "api",
+                "sub-section"
+              ],
+              "query": [
+                {
+                  "key": "restId",
+                  "value": "55126"
+                },
+                {
+                  "key": "rest_brId",
+                  "value": "54940"
+                },
+                {
+                  "key": "sectionId",
+                  "value": "40587"
+                },
+                {
+                  "key": "delivery_type",
+                  "value": "0"
+                },
+                {
+                  "key": "source",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Item by Sub Section",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "App-name",
+                "value": "imtiazsuperstore",
+                "type": "text"
+              },
+              {
+                "key": "Rest-Id",
+                "value": "55126",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://shop.imtiaz.com.pk/api/items-by-subsection?restId=55126&rest_brId=54940&sub_section_id=43046&delivery_type=0&source=&brand_name=&min_price=0&max_price=&sort_by=name&sort=asc&page_no=1&per_page=24&start=0&limit=24",
+              "protocol": "https",
+              "host": [
+                "shop",
+                "imtiaz",
+                "com",
+                "pk"
+              ],
+              "path": [
+                "api",
+                "items-by-subsection"
+              ],
+              "query": [
+                {
+                  "key": "restId",
+                  "value": "55126"
+                },
+                {
+                  "key": "rest_brId",
+                  "value": "54940"
+                },
+                {
+                  "key": "sub_section_id",
+                  "value": "43046"
+                },
+                {
+                  "key": "delivery_type",
+                  "value": "0"
+                },
+                {
+                  "key": "source",
+                  "value": ""
+                },
+                {
+                  "key": "brand_name",
+                  "value": ""
+                },
+                {
+                  "key": "min_price",
+                  "value": "0"
+                },
+                {
+                  "key": "max_price",
+                  "value": ""
+                },
+                {
+                  "key": "sort_by",
+                  "value": "name"
+                },
+                {
+                  "key": "sort",
+                  "value": "asc"
+                },
+                {
+                  "key": "page_no",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "24"
+                },
+                {
+                  "key": "start",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "24"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Bin Hashim",
+      "item": [
+        {
+          "name": "Menu Section",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "App-name",
+                "value": "binhashimpharmacysupermarket",
+                "type": "text"
+              },
+              {
+                "key": "Rest-Id",
+                "value": "55248",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://binhashimonline.pk/api/menu-section?restId=55248&rest_brId=55203&delivery_type=0&source=",
+              "protocol": "https",
+              "host": [
+                "binhashimonline",
+                "pk"
+              ],
+              "path": [
+                "api",
+                "menu-section"
+              ],
+              "query": [
+                {
+                  "key": "restId",
+                  "value": "55248"
+                },
+                {
+                  "key": "rest_brId",
+                  "value": "55203"
+                },
+                {
+                  "key": "delivery_type",
+                  "value": "0"
+                },
+                {
+                  "key": "source",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Sub Section",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "App-name",
+                "value": "binhashimpharmacysupermarket",
+                "type": "text"
+              },
+              {
+                "key": "Rest-Id",
+                "value": "55248",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://binhashimonline.pk/api/sub-section?restId=55248&rest_brId=55203&sectionId=42162&delivery_type=0&source=",
+              "protocol": "https",
+              "host": [
+                "binhashimonline",
+                "pk"
+              ],
+              "path": [
+                "api",
+                "sub-section"
+              ],
+              "query": [
+                {
+                  "key": "restId",
+                  "value": "55248"
+                },
+                {
+                  "key": "rest_brId",
+                  "value": "55203"
+                },
+                {
+                  "key": "sectionId",
+                  "value": "42162"
+                },
+                {
+                  "key": "delivery_type",
+                  "value": "0"
+                },
+                {
+                  "key": "source",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Item by Sub Section",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "App-name",
+                "value": "binhashimpharmacysupermarket",
+                "type": "text"
+              },
+              {
+                "key": "Rest-Id",
+                "value": "55248",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://binhashimonline.pk/api/items-by-subsection?restId=55248&rest_brId=55203&sub_section_id=45211&delivery_type=0&source=&brand_name=&min_price=0&max_price=&sort_by=name&sort=asc&page_no=1&per_page=24&start=0&limit=24",
+              "protocol": "https",
+              "host": [
+                "binhashimonline",
+                "pk"
+              ],
+              "path": [
+                "api",
+                "items-by-subsection"
+              ],
+              "query": [
+                {
+                  "key": "restId",
+                  "value": "55248"
+                },
+                {
+                  "key": "rest_brId",
+                  "value": "55203"
+                },
+                {
+                  "key": "sub_section_id",
+                  "value": "45211"
+                },
+                {
+                  "key": "delivery_type",
+                  "value": "0"
+                },
+                {
+                  "key": "source",
+                  "value": ""
+                },
+                {
+                  "key": "brand_name",
+                  "value": ""
+                },
+                {
+                  "key": "min_price",
+                  "value": "0"
+                },
+                {
+                  "key": "max_price",
+                  "value": ""
+                },
+                {
+                  "key": "sort_by",
+                  "value": "name"
+                },
+                {
+                  "key": "sort",
+                  "value": "asc"
+                },
+                {
+                  "key": "page_no",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "24"
+                },
+                {
+                  "key": "start",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "24"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Al-Jadeed",
+      "item": [
+        {
+          "name": "Menu Section",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "App-name",
+                "value": "aljadeedsupermarket",
+                "type": "text"
+              },
+              {
+                "key": "Rest-Id",
+                "value": "55232",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://www.aljadeed.pk/api/menu-section?restId=55232&rest_brId=55181&delivery_type=0&source=",
+              "protocol": "https",
+              "host": [
+                "www",
+                "aljadeed",
+                "pk"
+              ],
+              "path": [
+                "api",
+                "menu-section"
+              ],
+              "query": [
+                {
+                  "key": "restId",
+                  "value": "55232"
+                },
+                {
+                  "key": "rest_brId",
+                  "value": "55181"
+                },
+                {
+                  "key": "delivery_type",
+                  "value": "0"
+                },
+                {
+                  "key": "source",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Sub Section",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "App-name",
+                "value": "aljadeedsupermarket",
+                "type": "text"
+              },
+              {
+                "key": "Rest-Id",
+                "value": "55232",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://www.aljadeed.pk/api/sub-section?restId=55232&rest_brId=55181&sectionId=42000&delivery_type=0&source=",
+              "protocol": "https",
+              "host": [
+                "www",
+                "aljadeed",
+                "pk"
+              ],
+              "path": [
+                "api",
+                "sub-section"
+              ],
+              "query": [
+                {
+                  "key": "restId",
+                  "value": "55232"
+                },
+                {
+                  "key": "rest_brId",
+                  "value": "55181"
+                },
+                {
+                  "key": "sectionId",
+                  "value": "42000"
+                },
+                {
+                  "key": "delivery_type",
+                  "value": "0"
+                },
+                {
+                  "key": "source",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Item by Sub Section",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "App-name",
+                "value": "aljadeedsupermarket",
+                "type": "text"
+              },
+              {
+                "key": "Rest-Id",
+                "value": "55232",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://www.aljadeed.pk/api/items-by-subsection?restId=55232&rest_brId=55181&sub_section_id=44944&delivery_type=0&source=&brand_name=&min_price=0&max_price=&sort_by=name&sort=asc&page_no=1&per_page=24&start=0&limit=24",
+              "protocol": "https",
+              "host": [
+                "www",
+                "aljadeed",
+                "pk"
+              ],
+              "path": [
+                "api",
+                "items-by-subsection"
+              ],
+              "query": [
+                {
+                  "key": "restId",
+                  "value": "55232"
+                },
+                {
+                  "key": "rest_brId",
+                  "value": "55181"
+                },
+                {
+                  "key": "sub_section_id",
+                  "value": "44944"
+                },
+                {
+                  "key": "delivery_type",
+                  "value": "0"
+                },
+                {
+                  "key": "source",
+                  "value": ""
+                },
+                {
+                  "key": "brand_name",
+                  "value": ""
+                },
+                {
+                  "key": "min_price",
+                  "value": "0"
+                },
+                {
+                  "key": "max_price",
+                  "value": ""
+                },
+                {
+                  "key": "sort_by",
+                  "value": "name"
+                },
+                {
+                  "key": "sort",
+                  "value": "asc"
+                },
+                {
+                  "key": "page_no",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "24"
+                },
+                {
+                  "key": "start",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "24"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

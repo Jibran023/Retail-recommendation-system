@@ -9,7 +9,23 @@ import { Page } from '@playwright/test';
 
 test.describe('Category Filter Display', () => {
   test.beforeEach(async ({ page }) => {
+    // Mock categories API to return predictable test data
+    await page.route('**/rest/v1/products*select=name,category*', (route) => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          { name: 'Product 1', category: 'Test Category 1' },
+          { name: 'Product 2', category: 'Test Category 2' },
+          { name: 'Product 3', category: 'Test Category 3' },
+        ]),
+      });
+    });
+
     await page.goto('/');
+
+    // Wait for categories to load
+    await page.waitForSelector('[data-testid="category-all"]', { timeout: 5000 });
   });
 
   test('should display category filter on page load', async ({ page }) => {

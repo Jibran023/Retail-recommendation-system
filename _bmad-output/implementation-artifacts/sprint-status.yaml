@@ -67,16 +67,17 @@ development_status:
   3-3-add-google-maps-integration-mobile: backlog
   epic-3-retrospective: optional
 
-  # Epic 4: Data Pipeline & Scraping (8 stories)
-  epic-4: backlog
+  # Epic 4: Data Pipeline & API Integration (7 stories)
+  # MODIFIED: Changed from web scraping to public API calls
+  epic-4: in-progress
   4-1-design-supabase-database-schema: backlog
-  4-2-set-up-playwright-scraping-infrastructure: backlog
-  4-3-implement-imtiaz-supermarket-scraper: backlog
-  4-4-implement-chase-plus-scraper: backlog
-  4-5-build-etl-pipeline-data-transformation: backlog
-  4-6-configure-vercel-cron-job-scheduling: backlog
-  4-7-implement-respectful-scraping-anti-scraping: backlog
-  4-8-add-historical-data-retention: backlog
+  4-2-create-store-api-types-and-config: backlog
+  4-3-implement-store-api-client-service: backlog
+  4-4-implement-imtiaz-api-integration: backlog
+  4-5-implement-bin-hashim-api-integration: backlog
+  4-6-implement-al-jadeed-api-integration: backlog
+  4-7-build-etl-pipeline-data-transformation: backlog
+  4-8-configure-vercel-cron-job-scheduling: backlog
   epic-4-retrospective: optional
 
   # Epic 5: WCAG AA Accessibility & Urdu Support (5 stories)
