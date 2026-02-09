@@ -123,13 +123,15 @@ export function GroupedProductGrid({ category, searchQuery, limit = 50 }: Groupe
         // Convert to product groups with metadata
         const productGroups: ProductGroup[] = Object.entries(grouped).map(([baseName, products]) => {
           const allPrices = products.flatMap(p => p.prices || []);
-          const availablePrices = allPrices.filter(p => p.availability);
+          // Filter out invalid prices (Rs.0) before processing
+          const validPrices = allPrices.filter(p => p.price_cents > 0);
+          const availablePrices = validPrices.filter(p => p.availability);
           const cheapestPrice = availablePrices.length > 0
             ? Math.min(...availablePrices.map(p => p.price_cents))
             : null;
 
           const cheapestPriceObj = availablePrices.find(p => p.price_cents === cheapestPrice);
-          const prices = allPrices.map(p => p.price_cents).filter(p => p);
+          const prices = validPrices.map(p => p.price_cents).filter(p => p);
           const minPrice = prices.length > 0 ? Math.min(...prices) : null;
           const maxPrice = prices.length > 0 ? Math.max(...prices) : null;
 

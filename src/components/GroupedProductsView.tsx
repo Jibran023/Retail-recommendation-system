@@ -47,9 +47,11 @@ export function GroupedProductsView({ products }: GroupedProductsViewProps) {
   // Convert to array and add metadata
   const productGroups: ProductGroup[] = Object.values(groupedProducts).map((groupProducts) => {
     const allPrices = groupProducts.flatMap((p: Product) => p.prices || []);
-    const availablePrices = allPrices.filter((p: ProductPrice) => p.available);
+    // Filter out invalid prices (Rs.0)
+    const validPrices = allPrices.filter((p: ProductPrice) => p.price > 0);
+    const availablePrices = validPrices.filter((p: ProductPrice) => p.available);
     const cheapestPrice = availablePrices.length > 0 ? Math.min(...availablePrices.map((p) => p.price)) : null;
-    const prices = allPrices.map((p) => p.price).filter((p) => p);
+    const prices = validPrices.map((p) => p.price).filter((p) => p);
     const minPrice = prices.length > 0 ? Math.min(...prices) : null;
     const maxPrice = prices.length > 0 ? Math.max(...prices) : null;
 
